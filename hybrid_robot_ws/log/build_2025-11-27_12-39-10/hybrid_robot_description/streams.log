@@ -1,0 +1,115 @@
+[0.029s] Invoking command in '/home/lois/hybrid_robot_ws/build/hybrid_robot_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/lois/ros2_ws/install/rosbot_controller:/home/lois/ros2_ws/install/rosbot_utils:/home/lois/ros2_ws/install/rosbot_gazebo:/home/lois/ros2_ws/install/rosbot_bringup:/home/lois/ros2_ws/install/py_pubsub:/home/lois/ros2_ws/install/my_py_pkg:/opt/ros/humble /usr/bin/cmake /home/lois/hybrid_robot_ws/src/hybrid_robot_description -DCMAKE_INSTALL_PREFIX=/home/lois/hybrid_robot_ws/install/hybrid_robot_description
+[0.077s] -- Found ament_cmake: 1.3.12 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.508s] -- Found rclcpp: 16.0.15 (/opt/ros/humble/share/rclcpp/cmake)
+[0.605s] -- Found rosidl_generator_c: 3.1.7 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+[0.615s] -- Found rosidl_adapter: 3.1.7 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[0.632s] -- Found rosidl_generator_cpp: 3.1.7 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+[0.676s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.702s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.762s] -- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)
+[0.768s] -- Found rmw_fastrtps_cpp: 6.2.9 (/opt/ros/humble/share/rmw_fastrtps_cpp/cmake)
+[0.960s] -- Using RMW implementation 'rmw_fastrtps_cpp' as default
+[1.120s] -- Found gazebo_ros: 3.9.0 (/opt/ros/humble/share/gazebo_ros/cmake)
+[1.153s] -- Found PkgConfig: /usr/bin/pkg-config (found version "0.29.2") 
+[1.155s] -- Checking for module 'bullet>=2.82'
+[1.194s] --   Found bullet, version 3.05
+[1.423s] -- Found fcl: /usr/include (found suitable version "0.7.0", minimum required is "0.5.0") 
+[1.521s] -- Found assimp: /usr/include (found version "5.2.0") 
+[1.589s] -- Found DART: /usr/include (Required is at least version "6.6") found components: dart 
+[1.671s] -- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found suitable version "1.74.0", minimum required is "1.40.0") found components: thread system filesystem program_options regex iostreams date_time 
+[1.736s] -- Found Protobuf: /usr/lib/x86_64-linux-gnu/libprotobuf.so (found version "3.12.4") 
+[1.755s] -- Looking for ignition-math6 -- found version 6.15.1
+[1.786s] -- Searching for dependencies of ignition-math6
+[1.792s] -- Looking for OGRE...
+[1.793s] -- OGRE_PREFIX_WATCH changed.
+[1.805s] -- Checking for module 'OGRE'
+[1.829s] --   Found OGRE, version 1.9.0
+[1.919s] -- Found Ogre Ghadamon (1.9.0)
+[1.951s] -- Found OGRE: optimized;/usr/lib/x86_64-linux-gnu/libOgreMain.so;debug;/usr/lib/x86_64-linux-gnu/libOgreMain.so
+[1.978s] -- Looking for OGRE_Paging...
+[2.001s] -- Found OGRE_Paging: optimized;/usr/lib/x86_64-linux-gnu/libOgrePaging.so;debug;/usr/lib/x86_64-linux-gnu/libOgrePaging.so
+[2.001s] -- Looking for OGRE_Terrain...
+[2.021s] -- Found OGRE_Terrain: optimized;/usr/lib/x86_64-linux-gnu/libOgreTerrain.so;debug;/usr/lib/x86_64-linux-gnu/libOgreTerrain.so
+[2.021s] -- Looking for OGRE_Property...
+[2.040s] -- Found OGRE_Property: optimized;/usr/lib/x86_64-linux-gnu/libOgreProperty.so;debug;/usr/lib/x86_64-linux-gnu/libOgreProperty.so
+[2.040s] -- Looking for OGRE_RTShaderSystem...
+[2.057s] -- Found OGRE_RTShaderSystem: optimized;/usr/lib/x86_64-linux-gnu/libOgreRTShaderSystem.so;debug;/usr/lib/x86_64-linux-gnu/libOgreRTShaderSystem.so
+[2.057s] -- Looking for OGRE_Volume...
+[2.080s] -- Found OGRE_Volume: optimized;/usr/lib/x86_64-linux-gnu/libOgreVolume.so;debug;/usr/lib/x86_64-linux-gnu/libOgreVolume.so
+[2.081s] -- Looking for OGRE_Overlay...
+[2.100s] -- Found OGRE_Overlay: optimized;/usr/lib/x86_64-linux-gnu/libOgreOverlay.so;debug;/usr/lib/x86_64-linux-gnu/libOgreOverlay.so
+[2.390s] -- Looking for ignition-math6 -- found version 6.15.1
+[2.399s] -- Looking for ignition-transport8 -- found version 8.2.1
+[2.402s] -- Searching for dependencies of ignition-transport8
+[2.459s] -- Found Protobuf: /usr/lib/x86_64-linux-gnu/libprotobuf.so (found suitable version "3.12.4", minimum required is "3") 
+[2.501s] -- Config-file not installed for ZeroMQ -- checking for pkg-config
+[2.511s] -- Checking for module 'libzmq >= 4'
+[2.570s] --   Found libzmq , version 4.3.4
+[2.709s] -- Found ZeroMQ: TRUE (Required is at least version "4") 
+[2.724s] -- Checking for module 'uuid'
+[2.758s] --   Found uuid, version 2.37.2
+[2.825s] -- Found UUID: TRUE  
+[2.834s] -- Looking for ignition-msgs5 -- found version 5.8.1
+[2.835s] -- Searching for dependencies of ignition-msgs5
+[2.872s] -- Looking for ignition-math6 -- found version 6.15.1
+[2.895s] -- Checking for module 'tinyxml2'
+[2.929s] --   Found tinyxml2, version 9.0.0
+[3.022s] -- Looking for ignition-msgs5 -- found version 5.8.1
+[3.027s] -- Looking for ignition-common3 -- found version 3.14.0
+[3.028s] -- Searching for dependencies of ignition-common3
+[3.030s] -- Looking for dlfcn.h - found
+[3.032s] -- Looking for libdl - found
+[3.037s] -- Found DL: TRUE  
+[3.057s] -- Found tinyobjloader: /usr/lib/x86_64-linux-gnu/cmake/tinyobjloader/tinyobjloader-config.cmake (found version "2.0.0") 
+[3.062s] -- Searching for <ignition-common3> component [graphics]
+[3.068s] -- Looking for ignition-common3-graphics -- found version 3.14.0
+[3.068s] -- Searching for dependencies of ignition-common3-graphics
+[3.069s] -- Looking for ignition-math6 -- found version 6.15.1
+[3.082s] -- Looking for ignition-fuel_tools4 -- found version 4.4.0
+[3.085s] -- Searching for dependencies of ignition-fuel_tools4
+[3.273s] -- Found CURL: /usr/lib/x86_64-linux-gnu/libcurl.so (found version "7.81.0")  
+[3.300s] -- Checking for module 'jsoncpp'
+[3.338s] --   Found jsoncpp, version 1.9.5
+[3.446s] -- Found JSONCPP: TRUE  
+[3.462s] -- Checking for module 'libzip'
+[3.520s] --   Found libzip, version 1.7.3
+[3.636s] -- Found ZIP: TRUE  
+[3.642s] -- Looking for ignition-common3 -- found version 3.14.0
+[3.643s] -- Looking for ignition-math6 -- found version 6.15.1
+[3.643s] -- Looking for ignition-msgs5 -- found version 5.8.1
+[3.662s] -- Gazebo version: 11.10
+[3.669s] -- Checking for module 'tbb'
+[3.714s] --   Found tbb, version 2021.5.0
+[3.819s] -- Found ament_lint_auto: 0.12.14 (/opt/ros/humble/share/ament_lint_auto/cmake)
+[4.074s] -- Added test 'flake8' to check Python code syntax and style conventions
+[4.085s] -- Added test 'lint_cmake' to check CMake code style
+[4.085s] -- Added test 'pep257' to check Python code against some of the docstring style conventions in PEP 257
+[4.099s] -- Added test 'xmllint' to check XML markup files
+[4.102s] -- Configuring done
+[4.118s] -- Generating done
+[4.124s] -- Build files have been written to: /home/lois/hybrid_robot_ws/build/hybrid_robot_description
+[4.154s] Invoked command in '/home/lois/hybrid_robot_ws/build/hybrid_robot_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/lois/ros2_ws/install/rosbot_controller:/home/lois/ros2_ws/install/rosbot_utils:/home/lois/ros2_ws/install/rosbot_gazebo:/home/lois/ros2_ws/install/rosbot_bringup:/home/lois/ros2_ws/install/py_pubsub:/home/lois/ros2_ws/install/my_py_pkg:/opt/ros/humble /usr/bin/cmake /home/lois/hybrid_robot_ws/src/hybrid_robot_description -DCMAKE_INSTALL_PREFIX=/home/lois/hybrid_robot_ws/install/hybrid_robot_description
+[4.155s] Invoking command in '/home/lois/hybrid_robot_ws/build/hybrid_robot_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/lois/ros2_ws/install/rosbot_controller:/home/lois/ros2_ws/install/rosbot_utils:/home/lois/ros2_ws/install/rosbot_gazebo:/home/lois/ros2_ws/install/rosbot_bringup:/home/lois/ros2_ws/install/py_pubsub:/home/lois/ros2_ws/install/my_py_pkg:/opt/ros/humble /usr/bin/cmake --build /home/lois/hybrid_robot_ws/build/hybrid_robot_description -- -j2 -l2
+[4.261s] Invoked command in '/home/lois/hybrid_robot_ws/build/hybrid_robot_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/lois/ros2_ws/install/rosbot_controller:/home/lois/ros2_ws/install/rosbot_utils:/home/lois/ros2_ws/install/rosbot_gazebo:/home/lois/ros2_ws/install/rosbot_bringup:/home/lois/ros2_ws/install/py_pubsub:/home/lois/ros2_ws/install/my_py_pkg:/opt/ros/humble /usr/bin/cmake --build /home/lois/hybrid_robot_ws/build/hybrid_robot_description -- -j2 -l2
+[4.277s] Invoking command in '/home/lois/hybrid_robot_ws/build/hybrid_robot_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/lois/ros2_ws/install/rosbot_controller:/home/lois/ros2_ws/install/rosbot_utils:/home/lois/ros2_ws/install/rosbot_gazebo:/home/lois/ros2_ws/install/rosbot_bringup:/home/lois/ros2_ws/install/py_pubsub:/home/lois/ros2_ws/install/my_py_pkg:/opt/ros/humble /usr/bin/cmake --install /home/lois/hybrid_robot_ws/build/hybrid_robot_description
+[4.297s] -- Install configuration: ""
+[4.298s] -- Installing: /home/lois/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/worlds
+[4.302s] -- Installing: /home/lois/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/worlds/hybrid_map.world
+[4.303s] -- Installing: /home/lois/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/launch
+[4.303s] -- Installing: /home/lois/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/launch/launch_world.launch.py
+[4.303s] -- Installing: /home/lois/hybrid_robot_ws/install/hybrid_robot_description/share/ament_index/resource_index/package_run_dependencies/hybrid_robot_description
+[4.303s] -- Installing: /home/lois/hybrid_robot_ws/install/hybrid_robot_description/share/ament_index/resource_index/parent_prefix_path/hybrid_robot_description
+[4.304s] -- Installing: /home/lois/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/environment/ament_prefix_path.sh
+[4.304s] -- Installing: /home/lois/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/environment/ament_prefix_path.dsv
+[4.305s] -- Installing: /home/lois/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/environment/path.sh
+[4.306s] -- Installing: /home/lois/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/environment/path.dsv
+[4.306s] -- Installing: /home/lois/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/local_setup.bash
+[4.307s] -- Installing: /home/lois/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/local_setup.sh
+[4.308s] -- Installing: /home/lois/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/local_setup.zsh
+[4.309s] -- Installing: /home/lois/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/local_setup.dsv
+[4.310s] -- Installing: /home/lois/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/package.dsv
+[4.316s] -- Installing: /home/lois/hybrid_robot_ws/install/hybrid_robot_description/share/ament_index/resource_index/packages/hybrid_robot_description
+[4.316s] -- Installing: /home/lois/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/cmake/hybrid_robot_descriptionConfig.cmake
+[4.316s] -- Installing: /home/lois/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/cmake/hybrid_robot_descriptionConfig-version.cmake
+[4.316s] -- Installing: /home/lois/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/package.xml
+[4.321s] Invoked command in '/home/lois/hybrid_robot_ws/build/hybrid_robot_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/lois/ros2_ws/install/rosbot_controller:/home/lois/ros2_ws/install/rosbot_utils:/home/lois/ros2_ws/install/rosbot_gazebo:/home/lois/ros2_ws/install/rosbot_bringup:/home/lois/ros2_ws/install/py_pubsub:/home/lois/ros2_ws/install/my_py_pkg:/opt/ros/humble /usr/bin/cmake --install /home/lois/hybrid_robot_ws/build/hybrid_robot_description

@@ -1,0 +1,98 @@
+[0.000000] (-) TimerEvent: {}
+[0.000507] (hybrid_robot_description) JobQueued: {'identifier': 'hybrid_robot_description', 'dependencies': OrderedDict()}
+[0.000594] (hybrid_robot_description) JobStarted: {'identifier': 'hybrid_robot_description'}
+[0.032421] (hybrid_robot_description) JobProgress: {'identifier': 'hybrid_robot_description', 'progress': 'cmake'}
+[0.032836] (hybrid_robot_description) Command: {'cmd': ['/usr/bin/cmake', '/home/lois/hybrid_robot_ws/src/hybrid_robot_description', '-DCMAKE_INSTALL_PREFIX=/home/lois/hybrid_robot_ws/install/hybrid_robot_description'], 'cwd': '/home/lois/hybrid_robot_ws/build/hybrid_robot_description', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('GZ_SIM_RESOURCE_PATH', '/home/lois/ros2_ws/install/rosbot_description/share:/home/lois/ros2_ws/install/husarion_gz_worlds/share/husarion_gz_worlds/models:/opt/ros/humble/share'), ('LANGUAGE', 'en_US:'), ('USER', 'lois'), ('LC_TIME', 'fr_FR.UTF-8'), ('XDG_SESSION_TYPE', 'wayland'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib:/usr/lib/x86_64-linux-gnu/gazebo-11/plugins::/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:/usr/lib/x86_64-linux-gnu/gazebo-11/plugins::/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:/usr/lib/x86_64-linux-gnu/gazebo-11/plugins::/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:'), ('HOME', '/home/lois'), ('OLDPWD', '/home/lois/hybrid_robot_ws/src/hybrid_robot_description'), ('DESKTOP_SESSION', 'ubuntu'), ('GAZEBO_MASTER_URI', 'http://localhost:11345'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('LC_MONETARY', 'fr_FR.UTF-8'), ('SYSTEMD_EXEC_PID', '6423'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('COLORTERM', 'truecolor'), ('IM_CONFIG_PHASE', '1'), ('WAYLAND_DISPLAY', 'wayland-0'), ('COLCON_PREFIX_PATH', '/home/lois/hybrid_robot_ws/install:/home/lois/ros2_ws/install'), ('ROS_DISTRO', 'humble'), ('LOGNAME', 'lois'), ('IGN_GAZEBO_MODEL_PATH', '/opt/ros/humble/share'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('USERNAME', 'lois'), ('TERM', 'xterm-256color'), ('GAZEBO_MODEL_PATH', '/usr/share/gazebo-11/models:/usr/share/gazebo-11/models:/usr/share/gazebo-11/models:/usr/share/gazebo-11/models:/home/lois/ros2_ws/install/rosbot_description/share:/home/lois/ros2_ws/install/husarion_gz_worlds/share/husarion_gz_worlds/models:/opt/ros/humble/share'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('OGRE_RESOURCE_PATH', '/usr/lib/x86_64-linux-gnu/OGRE-1.9.0'), ('PATH', '/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin'), ('SESSION_MANAGER', 'local/VM-Ubuntu-ROS2:@/tmp/.ICE-unix/6400,unix/VM-Ubuntu-ROS2:/tmp/.ICE-unix/6400'), ('XDG_MENU_PREFIX', 'gnome-'), ('LC_ADDRESS', 'fr_FR.UTF-8'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/bfe92dff_26fc_422a_a3e5_62466d66e3d4'), ('GNOME_SETUP_DISPLAY', ':1'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('DISPLAY', ':0'), ('LANG', 'en_US.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('LC_TELEPHONE', 'fr_FR.UTF-8'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu'), ('XAUTHORITY', '/run/user/1000/.mutter-Xwaylandauth.S6VLG3'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.101'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('AMENT_PREFIX_PATH', '/home/lois/ros2_ws/install/rosbot_controller:/home/lois/ros2_ws/install/rosbot_utils:/home/lois/ros2_ws/install/rosbot_localization:/home/lois/ros2_ws/install/rosbot_joy:/home/lois/ros2_ws/install/rosbot_gazebo:/home/lois/ros2_ws/install/rosbot_description:/home/lois/ros2_ws/install/rosbot_bringup:/home/lois/ros2_ws/install/rosbot:/home/lois/ros2_ws/install/py_pubsub:/home/lois/ros2_ws/install/my_py_pkg:/home/lois/ros2_ws/install/husarion_gz_worlds:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('LC_NAME', 'fr_FR.UTF-8'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('IGN_GAZEBO_RESOURCE_PATH', '/home/lois/ros2_ws/install/rosbot_description/share:/home/lois/ros2_ws/install/husarion_gz_worlds/share/husarion_gz_worlds/models:/opt/ros/humble/share'), ('LC_MEASUREMENT', 'fr_FR.UTF-8'), ('GAZEBO_RESOURCE_PATH', '/usr/share/gazebo-11:/usr/share/gazebo-11:/usr/share/gazebo-11:/usr/share/gazebo-11:/opt/ros/humble/share'), ('LC_IDENTIFICATION', 'fr_FR.UTF-8'), ('GAZEBO_MODEL_DATABASE_URI', 'http://models.gazebosim.org'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/lois/hybrid_robot_ws/build/hybrid_robot_description'), ('TURTLEBOT3_MODEL', 'burger'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('GAZEBO_PLUGIN_PATH', '/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:'), ('XDG_DATA_DIRS', '/usr/share/ubuntu:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/lois/ros2_ws/install/rosbot_controller/lib/python3.10/site-packages:/home/lois/ros2_ws/install/rosbot_utils/lib/python3.10/site-packages:/home/lois/ros2_ws/install/rosbot_gazebo/lib/python3.10/site-packages:/home/lois/ros2_ws/install/rosbot_bringup/lib/python3.10/site-packages:/home/lois/ros2_ws/install/py_pubsub/lib/python3.10/site-packages:/home/lois/ros2_ws/install/my_py_pkg/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('LC_NUMERIC', 'fr_FR.UTF-8'), ('LC_PAPER', 'fr_FR.UTF-8'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('CMAKE_PREFIX_PATH', '/home/lois/ros2_ws/install/rosbot_localization:/home/lois/ros2_ws/install/rosbot_joy:/home/lois/ros2_ws/install/rosbot_description:/home/lois/ros2_ws/install/rosbot:/home/lois/ros2_ws/install/husarion_gz_worlds:/home/lois/ros2_ws/install/rosbot_controller:/home/lois/ros2_ws/install/rosbot_utils:/home/lois/ros2_ws/install/rosbot_gazebo:/home/lois/ros2_ws/install/rosbot_bringup:/home/lois/ros2_ws/install/py_pubsub:/home/lois/ros2_ws/install/my_py_pkg:/opt/ros/humble')]), 'shell': False}
+[0.097043] (-) TimerEvent: {}
+[0.197803] (-) TimerEvent: {}
+[0.299222] (-) TimerEvent: {}
+[0.400849] (-) TimerEvent: {}
+[0.502314] (-) TimerEvent: {}
+[0.514947] (hybrid_robot_description) StdoutLine: {'line': b'-- The C compiler identification is GNU 11.4.0\n'}
+[0.602604] (-) TimerEvent: {}
+[0.706103] (-) TimerEvent: {}
+[0.807526] (-) TimerEvent: {}
+[0.908748] (-) TimerEvent: {}
+[0.922937] (hybrid_robot_description) StdoutLine: {'line': b'-- The CXX compiler identification is GNU 11.4.0\n'}
+[0.985560] (hybrid_robot_description) StdoutLine: {'line': b'-- Detecting C compiler ABI info\n'}
+[1.009140] (-) TimerEvent: {}
+[1.110748] (-) TimerEvent: {}
+[1.212126] (-) TimerEvent: {}
+[1.244482] (hybrid_robot_description) StdoutLine: {'line': b'-- Detecting C compiler ABI info - done\n'}
+[1.263456] (hybrid_robot_description) StdoutLine: {'line': b'-- Check for working C compiler: /usr/bin/cc - skipped\n'}
+[1.265701] (hybrid_robot_description) StdoutLine: {'line': b'-- Detecting C compile features\n'}
+[1.268512] (hybrid_robot_description) StdoutLine: {'line': b'-- Detecting C compile features - done\n'}
+[1.285790] (hybrid_robot_description) StdoutLine: {'line': b'-- Detecting CXX compiler ABI info\n'}
+[1.312770] (-) TimerEvent: {}
+[1.413336] (-) TimerEvent: {}
+[1.507843] (hybrid_robot_description) StdoutLine: {'line': b'-- Detecting CXX compiler ABI info - done\n'}
+[1.513770] (-) TimerEvent: {}
+[1.535588] (hybrid_robot_description) StdoutLine: {'line': b'-- Check for working CXX compiler: /usr/bin/c++ - skipped\n'}
+[1.536221] (hybrid_robot_description) StdoutLine: {'line': b'-- Detecting CXX compile features\n'}
+[1.542959] (hybrid_robot_description) StdoutLine: {'line': b'-- Detecting CXX compile features - done\n'}
+[1.571697] (hybrid_robot_description) StdoutLine: {'line': b'-- Found ament_cmake: 1.3.12 (/opt/ros/humble/share/ament_cmake/cmake)\n'}
+[1.614240] (-) TimerEvent: {}
+[1.716031] (-) TimerEvent: {}
+[1.819914] (-) TimerEvent: {}
+[1.921535] (-) TimerEvent: {}
+[2.024962] (-) TimerEvent: {}
+[2.080622] (hybrid_robot_description) StdoutLine: {'line': b'-- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter \n'}
+[2.129935] (-) TimerEvent: {}
+[2.239466] (-) TimerEvent: {}
+[2.342211] (-) TimerEvent: {}
+[2.445351] (-) TimerEvent: {}
+[2.546328] (-) TimerEvent: {}
+[2.592072] (hybrid_robot_description) StdoutLine: {'line': b'-- Found rclcpp: 16.0.15 (/opt/ros/humble/share/rclcpp/cmake)\n'}
+[2.646472] (-) TimerEvent: {}
+[2.747228] (-) TimerEvent: {}
+[2.847941] (-) TimerEvent: {}
+[2.860838] (hybrid_robot_description) StdoutLine: {'line': b'-- Found rosidl_generator_c: 3.1.7 (/opt/ros/humble/share/rosidl_generator_c/cmake)\n'}
+[2.884606] (hybrid_robot_description) StdoutLine: {'line': b'-- Found rosidl_adapter: 3.1.7 (/opt/ros/humble/share/rosidl_adapter/cmake)\n'}
+[2.920741] (hybrid_robot_description) StdoutLine: {'line': b'-- Found rosidl_generator_cpp: 3.1.7 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)\n'}
+[2.948091] (-) TimerEvent: {}
+[2.966294] (hybrid_robot_description) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c\n'}
+[3.033973] (hybrid_robot_description) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp\n'}
+[3.049102] (-) TimerEvent: {}
+[3.153082] (-) TimerEvent: {}
+[3.254093] (-) TimerEvent: {}
+[3.260646] (hybrid_robot_description) StdoutLine: {'line': b'-- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)\n'}
+[3.269159] (hybrid_robot_description) StdoutLine: {'line': b'-- Found rmw_fastrtps_cpp: 6.2.9 (/opt/ros/humble/share/rmw_fastrtps_cpp/cmake)\n'}
+[3.354738] (-) TimerEvent: {}
+[3.455280] (-) TimerEvent: {}
+[3.493417] (hybrid_robot_description) StdoutLine: {'line': b'-- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libcrypto.so (found version "3.0.2")  \n'}
+[3.546837] (hybrid_robot_description) StdoutLine: {'line': b'-- Found FastRTPS: /opt/ros/humble/include  \n'}
+[3.558368] (-) TimerEvent: {}
+[3.618548] (hybrid_robot_description) StdoutLine: {'line': b"-- Using RMW implementation 'rmw_fastrtps_cpp' as default\n"}
+[3.650538] (hybrid_robot_description) StdoutLine: {'line': b'-- Looking for pthread.h\n'}
+[3.660160] (-) TimerEvent: {}
+[3.760518] (-) TimerEvent: {}
+[3.839645] (hybrid_robot_description) StdoutLine: {'line': b'-- Looking for pthread.h - found\n'}
+[3.840356] (hybrid_robot_description) StdoutLine: {'line': b'-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n'}
+[3.862197] (-) TimerEvent: {}
+[3.963266] (-) TimerEvent: {}
+[3.975576] (hybrid_robot_description) StdoutLine: {'line': b'-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n'}
+[3.978243] (hybrid_robot_description) StdoutLine: {'line': b'-- Found Threads: TRUE  \n'}
+[4.064455] (-) TimerEvent: {}
+[4.168866] (-) TimerEvent: {}
+[4.173436] (hybrid_robot_description) StdoutLine: {'line': b'-- Configuring incomplete, errors occurred!\n'}
+[4.173991] (hybrid_robot_description) StderrLine: {'line': b'\x1b[31mCMake Error at CMakeLists.txt:11 (find_package):\n'}
+[4.174267] (hybrid_robot_description) StderrLine: {'line': b'  By not providing "Findgazebo_ros.cmake" in CMAKE_MODULE_PATH this project\n'}
+[4.174424] (hybrid_robot_description) StderrLine: {'line': b'  has asked CMake to find a package configuration file provided by\n'}
+[4.174542] (hybrid_robot_description) StderrLine: {'line': b'  "gazebo_ros", but CMake did not find one.\n'}
+[4.174650] (hybrid_robot_description) StderrLine: {'line': b'\n'}
+[4.174765] (hybrid_robot_description) StderrLine: {'line': b'  Could not find a package configuration file provided by "gazebo_ros" with\n'}
+[4.174856] (hybrid_robot_description) StderrLine: {'line': b'  any of the following names:\n'}
+[4.175072] (hybrid_robot_description) StderrLine: {'line': b'\n'}
+[4.175359] (hybrid_robot_description) StderrLine: {'line': b'    gazebo_rosConfig.cmake\n'}
+[4.175462] (hybrid_robot_description) StderrLine: {'line': b'    gazebo_ros-config.cmake\n'}
+[4.175556] (hybrid_robot_description) StderrLine: {'line': b'\n'}
+[4.175640] (hybrid_robot_description) StderrLine: {'line': b'  Add the installation prefix of "gazebo_ros" to CMAKE_PREFIX_PATH or set\n'}
+[4.175745] (hybrid_robot_description) StderrLine: {'line': b'  "gazebo_ros_DIR" to a directory containing one of the above files.  If\n'}
+[4.175829] (hybrid_robot_description) StderrLine: {'line': b'  "gazebo_ros" provides a separate development package or SDK, be sure it has\n'}
+[4.176088] (hybrid_robot_description) StderrLine: {'line': b'  been installed.\n'}
+[4.176212] (hybrid_robot_description) StderrLine: {'line': b'\n'}
+[4.176287] (hybrid_robot_description) StderrLine: {'line': b'\x1b[0m\n'}
+[4.176362] (hybrid_robot_description) StdoutLine: {'line': b'See also "/home/lois/hybrid_robot_ws/build/hybrid_robot_description/CMakeFiles/CMakeOutput.log".\n'}
+[4.185148] (hybrid_robot_description) CommandEnded: {'returncode': 1}
+[4.247346] (hybrid_robot_description) JobEnded: {'identifier': 'hybrid_robot_description', 'rc': 1}
+[4.266872] (-) EventReactorShutdown: {}
