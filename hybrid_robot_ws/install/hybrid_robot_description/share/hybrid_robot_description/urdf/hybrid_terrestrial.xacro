@@ -21,12 +21,12 @@
 
     <link name="base_link">
         <visual>
-            <origin xyz="0 0 ${base_height/2}" rpy="0 0 0" />
+            <origin xyz="0 0 ${wheel_radius + base_height/2}" rpy="0 0 0" />
             <geometry><box size="${base_length} ${base_width} ${base_height}" /></geometry>
             <material name="White"><color rgba="1 1 1 1"/></material>
         </visual>
         <collision>
-            <origin xyz="0 0 ${base_height/2}" rpy="0 0 0" />
+            <origin xyz="0 0 ${wheel_radius + base_height/2}" rpy="0 0 0" />
             <geometry><box size="${base_length} ${base_width} ${base_height}" /></geometry>
         </collision>
         <xacro:default_inertial mass="${base_mass}"/>
