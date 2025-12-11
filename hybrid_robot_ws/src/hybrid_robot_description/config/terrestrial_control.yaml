@@ -38,3 +38,7 @@ diff_drive_controller:
     angular.z.max_velocity: 1.0 # Velocidad angular máxima (1.0 rad/s)
     angular.z.has_acceleration_limits: true
     angular.z.max_acceleration: 2.0 # Aceleración angular máxima
+
+    publish_odom_tf: true
+    odom_frame_id: odom
+    base_frame_id: base_link

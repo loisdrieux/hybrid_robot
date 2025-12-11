@@ -1,0 +1,11 @@
+# Dossiers générés par ROS/Colcon
+build/
+install/
+log/
+
+# Fichiers de configuration utilisateur
+*.vscode/
+
+# Fichiers de cache spécifiques au projet
+# Si vous aviez généré l'OctoMap, vous devriez aussi exclure :
+# storage_level_0.bt
