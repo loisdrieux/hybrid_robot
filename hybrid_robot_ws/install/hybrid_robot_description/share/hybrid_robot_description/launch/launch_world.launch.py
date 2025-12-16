@@ -14,7 +14,7 @@ def generate_launch_description():
     # Parámetros globales
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     world_path = os.path.join(pkg_desc, 'worlds', 'hybrid_map.world')
-    map_yaml_path = os.path.join(pkg_desc, 'map', 'storage_map.yaml') # Ruta del archivo YAML de la mapa
+    map_yaml_path = os.path.join(pkg_desc, 'map', 'storage_map.yaml') 
     
     # Cargar el archivo XACRO del robot
     robot_description = {'robot_description': Command([
@@ -24,7 +24,7 @@ def generate_launch_description():
     
     # --- 2. LANZAMIENTO DE COMPONENTES BÁSICOS ---
     
-    # a) Lanzar el Servidor y Cliente de Gazebo
+    # a) Lanzar Gazebo (Servidor y Cliente)
     gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(pkg_gazebo_ros, 'launch', 'gazebo.launch.py')
@@ -32,7 +32,7 @@ def generate_launch_description():
         launch_arguments={'world': world_path, 'gzclient': 'true', 'use_sim_time': use_sim_time}.items()
     )
 
-    # b) Lanzar Robot State Publisher (Publica las transformaciones TF odom -> base_link)
+    # b) Robot State Publisher (TF estáticas del robot)
     node_robot_state_publisher = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
@@ -40,19 +40,35 @@ def generate_launch_description():
         parameters=[robot_description, {'use_sim_time': use_sim_time}],
     )
 
-    # c) Generar (spawn) la entidad del robot en Gazebo (con Z=0.01 para asegurar fricción inicial)
+    # c) Spawn del robot en Gazebo
     spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
                         arguments=['-topic', 'robot_description',
                                    '-entity', 'hybrid_robot_terrestrial',
-                                   '-x', '0.5', 
-                                   '-y', '5.0',
-                                   '-z', '0.01', 
+                                   '-x', '0.5', '-y', '5.0', '-z', '0.05', # Ajustado a 0.05 para evitar enterrarse
                                    '--ros-args', '--param', 'use_sim_time:=true'],
                         output='screen')
 
-    # --- 3. LANZAMIENTO Y CONFIGURACIÓN DEL MAPA (MAP) ---
+    # --- 3. GESTIÓN DE CONTROLADORES (NUEVO) ---
 
-    # d) Lanzar el Servidor de Mapas (Map Server)
+    # d) Carga del Joint State Broadcaster (Publica estados de los joints)
+    load_joint_state_broadcaster = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["joint_state_broadcaster"],
+        output="screen",
+    )
+
+    # e) Carga del Diff Drive Controller (Control de movimiento terrestre)
+    load_diff_drive_controller = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["diff_drive_controller"],
+        output="screen",
+    )
+
+    # --- 4. LANZAMIENTO Y CONFIGURACIÓN DEL MAPA ---
+
+    # f) Map Server
     node_map_server = Node(
         package='nav2_map_server',
         executable='map_server',
@@ -61,8 +77,7 @@ def generate_launch_description():
         parameters=[{'use_sim_time': use_sim_time, 'yaml_filename': map_yaml_path}]
     )
 
-    # e) Publicar transformaciones estáticas (World -> Map y Map -> Odom)
-    # TF World -> Map
+    # g) TF estáticas globales
     static_tf_world_map = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
@@ -70,18 +85,10 @@ def generate_launch_description():
         output='screen',
         arguments=['0', '0', '0', '0', '0', '0', 'world', 'map', '--ros-args', '-p', 'use_sim_time:=true']
     )
-    # TF Map -> Odom (Nota: esto suele ser gestionado por el controlador, pero se incluye como estático aquí)
-    static_tf_map_odom = Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        name='static_tf_map_odom',
-        output='screen',
-        arguments=['0', '0', '0', '0', '0', '0', 'map', 'odom', '--ros-args', '-p', 'use_sim_time:=true']
-    )
 
-    # f) Activación del Map Server (Se activa tras 5 segundos para permitir que el nodo inicie correctamente)
+    # h) Activación del Map Server (Espera a que los controladores y el spawn terminen)
     activate_map_server = TimerAction(
-        period=5.0,
+        period=10.0,
         actions=[
             ExecuteProcess(
                 cmd=['ros2', 'lifecycle', 'set', '/map_server', 'configure'],
@@ -94,11 +101,9 @@ def generate_launch_description():
         ]
     )
     
-    # --- 4. LANZAMIENTO DE RVIZ ---
+    # --- 5. LANZAMIENTO DE RVIZ ---
     
-    # g) Lanzar Rviz2 (después de 7 segundos para asegurar que el mapa ya esté publicado)
     rviz_config_file = os.path.join(pkg_desc, 'rviz', 'default.rviz') 
-    
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
@@ -109,22 +114,25 @@ def generate_launch_description():
     )
     
     launch_rviz = TimerAction(
-        period=7.0,
+        period=15.0,
         actions=[rviz_node]
     )
     
     return LaunchDescription([
-        # Ejecución de acciones en orden lógico
+        # Orden lógico de ejecución
         gazebo_launch,
         node_robot_state_publisher,
         spawn_entity,
         
-        # Componentes de mapa y transformaciones TF
+        # Carga automática de controladores
+        load_joint_state_broadcaster,
+        load_diff_drive_controller,
+        
+        # Mapa y TFs
         node_map_server,
         static_tf_world_map,
-        static_tf_map_odom,
-        
-        # Activación del ciclo de vida del mapa y lanzamiento de Rviz
         activate_map_server,
+        
+        # Visualización
         launch_rviz,
     ])

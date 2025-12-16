@@ -2,6 +2,9 @@ controller_manager:
   ros__parameters:
     # Frecuencia de actualización del controlador (en Hz)
     update_rate: 30 
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
     
     # Nombre del controlador y tipo (requerido para robots diferenciales)
     diff_drive_controller:
