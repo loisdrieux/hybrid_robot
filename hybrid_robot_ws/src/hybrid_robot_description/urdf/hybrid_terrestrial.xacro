@@ -99,6 +99,28 @@
         <parent link="base_link" />
         <child link="caster_rear_link" />
     </joint>
+<xacro:include filename="hybrid_aerial.xacro" />
+
+    <link name="landing_pad">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry><box size="0.4 0.4 0.01" /></geometry>
+            <material name="Grey"><color rgba="0.5 0.5 0.5 1"/></material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry><box size="0.4 0.4 0.01" /></geometry>
+        </collision>
+        <xacro:default_inertial mass="0.1"/>
+    </link>
+
+    <joint name="landing_pad_joint" type="fixed">
+        <parent link="base_link" />
+        <child link="landing_pad" />
+        <origin xyz="0 0 0.2" rpy="0 0 0" /> 
+    </joint>
+
+    <xacro:drone_assembly parent_link="landing_pad" />
 
     <ros2_control name="TerrestrialRobot" type="system">
         <hardware>

@@ -34,6 +34,7 @@ install(
   DESTINATION share/${PROJECT_NAME}
 )
 
+
 # Installation du fichier de configuration du contrôleur
 install(
   DIRECTORY config
@@ -48,6 +49,11 @@ install(
 # Ajout du dossier map
 install(
   DIRECTORY map
+  DESTINATION share/${PROJECT_NAME}
+)
+
+install(
+  DIRECTORY urdf worlds map rviz config
   DESTINATION share/${PROJECT_NAME}
 )
 

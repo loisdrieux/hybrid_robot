@@ -31,7 +31,8 @@ diff_drive_controller:
     linear.x.has_velocity_limits: true
     linear.x.max_velocity: 0.5 # Velocidad lineal máxima (0.5 m/s)
     linear.x.has_acceleration_limits: true
-    linear.x.max_acceleration: 1.0 # Aceleración lineal máxima
+    linear.x.max_acceleration: 2.0 # Aceleración lineal máxima
+    angular.z.max_acceleration: 3.0
 
     # Límites de Velocidad Angular (Eje Z - Rotación)
     angular.z.has_velocity_limits: true

@@ -67,6 +67,16 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/hybrid_robot_description" TYPE DIRECTORY FILES
+    "/home/lois/hybrid_robot/hybrid_robot_ws/src/hybrid_robot_description/urdf"
+    "/home/lois/hybrid_robot/hybrid_robot_ws/src/hybrid_robot_description/worlds"
+    "/home/lois/hybrid_robot/hybrid_robot_ws/src/hybrid_robot_description/map"
+    "/home/lois/hybrid_robot/hybrid_robot_ws/src/hybrid_robot_description/rviz"
+    "/home/lois/hybrid_robot/hybrid_robot_ws/src/hybrid_robot_description/config"
+    )
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/package_run_dependencies" TYPE FILE FILES "/home/lois/hybrid_robot/hybrid_robot_ws/build/hybrid_robot_description/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/hybrid_robot_description")
 endif()
 

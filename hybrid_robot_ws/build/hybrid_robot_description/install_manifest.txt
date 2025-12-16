@@ -1,5 +1,6 @@
 /home/lois/hybrid_robot/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/worlds/hybrid_map.world
 /home/lois/hybrid_robot/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/launch/launch_world.launch.py
+/home/lois/hybrid_robot/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/urdf/hybrid_aerial.xacro
 /home/lois/hybrid_robot/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/urdf/hybrid_terrestrial.xacro
 /home/lois/hybrid_robot/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/config/nav2_params.yaml
 /home/lois/hybrid_robot/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/config/terrestrial_control.yaml
@@ -8,6 +9,15 @@
 /home/lois/hybrid_robot/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/map/storage_map.yaml
 /home/lois/hybrid_robot/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/map/map_blanco.png
 /home/lois/hybrid_robot/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/map/storage_map.pgm
+/home/lois/hybrid_robot/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/urdf/hybrid_aerial.xacro
+/home/lois/hybrid_robot/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/urdf/hybrid_terrestrial.xacro
+/home/lois/hybrid_robot/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/worlds/hybrid_map.world
+/home/lois/hybrid_robot/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/map/map_blanco.pgm
+/home/lois/hybrid_robot/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/map/storage_map.yaml
+/home/lois/hybrid_robot/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/map/map_blanco.png
+/home/lois/hybrid_robot/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/map/storage_map.pgm
+/home/lois/hybrid_robot/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/config/nav2_params.yaml
+/home/lois/hybrid_robot/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/config/terrestrial_control.yaml
 /home/lois/hybrid_robot/hybrid_robot_ws/install/hybrid_robot_description/share/ament_index/resource_index/package_run_dependencies/hybrid_robot_description
 /home/lois/hybrid_robot/hybrid_robot_ws/install/hybrid_robot_description/share/ament_index/resource_index/parent_prefix_path/hybrid_robot_description
 /home/lois/hybrid_robot/hybrid_robot_ws/install/hybrid_robot_description/share/hybrid_robot_description/environment/ament_prefix_path.sh
