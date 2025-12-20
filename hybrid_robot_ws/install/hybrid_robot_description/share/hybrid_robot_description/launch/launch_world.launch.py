@@ -72,9 +72,24 @@ def generate_launch_description():
     node_map_server = Node(
         package='nav2_map_server',
         executable='map_server',
-        name='map_server',
+        name='map_server',  # <--- CE NOM DOIT ÊTRE EXACT
         output='screen',
-        parameters=[{'use_sim_time': use_sim_time, 'yaml_filename': map_yaml_path}]
+        parameters=[{
+            'use_sim_time': True,
+            'yaml_filename': map_yaml_path
+        }]
+    )
+
+    lifecycle_manager_node = Node(
+        package='nav2_lifecycle_manager',
+        executable='lifecycle_manager',
+        name='lifecycle_manager_navigation',
+        output='screen',
+        parameters=[{
+            'use_sim_time': True,
+            'autostart': True,
+            'node_names': ['map_server'] # <--- DOIT CORRESPONDRE AU NOM CI-DESSUS
+        }]
     )
 
     # g) TF estáticas globales
@@ -86,20 +101,16 @@ def generate_launch_description():
         arguments=['0', '0', '0', '0', '0', '0', 'world', 'map', '--ros-args', '-p', 'use_sim_time:=true']
     )
 
-    # h) Activación del Map Server (Espera a que los controladores y el spawn terminen)
-    activate_map_server = TimerAction(
-        period=10.0,
-        actions=[
-            ExecuteProcess(
-                cmd=['ros2', 'lifecycle', 'set', '/map_server', 'configure'],
-                output='screen'
-            ),
-            ExecuteProcess(
-                cmd=['ros2', 'lifecycle', 'set', '/map_server', 'activate'],
-                output='screen'
-            )
-        ]
+    # Liaison entre la carte et l'odométrie
+    static_tf_map_odom = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='static_tf_map_odom',
+        output='screen',
+        arguments=['0.5', '5.0', '0', '0', '0', '0', 'map', 'odom'] #Mismo que el spawn en Gazebo
     )
+
+
     
     # --- 5. LANZAMIENTO DE RVIZ ---
     
@@ -130,8 +141,9 @@ def generate_launch_description():
         
         # Mapa y TFs
         node_map_server,
+        lifecycle_manager_node,
         static_tf_world_map,
-        activate_map_server,
+        static_tf_map_odom,
         
         # Visualización
         launch_rviz,
