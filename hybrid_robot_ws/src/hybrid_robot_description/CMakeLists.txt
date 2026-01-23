@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.8)
-
 project(hybrid_robot_description) 
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -18,44 +17,16 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-# Installation des fichiers nécessaires à l'exécution
+
 install(
-  DIRECTORY worlds
-  DESTINATION share/${PROJECT_NAME}
-)
-  
-install(
-  DIRECTORY launch
+  DIRECTORY urdf worlds map config launch scripts
   DESTINATION share/${PROJECT_NAME}
 )
 
-install(
-  DIRECTORY urdf
-  DESTINATION share/${PROJECT_NAME}
-)
-
-
-# Installation du fichier de configuration du contrôleur
-install(
-  DIRECTORY config
-  DESTINATION share/${PROJECT_NAME}
-)
-
-# Ajout du dossier scripts
-install(
-  DIRECTORY scripts
-  DESTINATION share/${PROJECT_NAME}
-)
-# Ajout du dossier map
-install(
-  DIRECTORY map
-  DESTINATION share/${PROJECT_NAME}
-)
-
-install(
-  DIRECTORY urdf worlds map rviz config
-  DESTINATION share/${PROJECT_NAME}
+install(PROGRAMS
+  scripts/rrt.py
+  scripts/rrt_planner_node.py
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 ament_package()
-

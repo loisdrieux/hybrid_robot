@@ -46,3 +46,5 @@ diff_drive_controller:
     publish_odom_tf: true
     odom_frame_id: odom
     base_frame_id: base_link
+
+    use_stamped_vel: false
