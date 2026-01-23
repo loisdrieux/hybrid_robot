@@ -27,16 +27,11 @@ import numpy as np
 
 # Modified collision function for rrt.py
 def collision(x1, y1, x2, y2, map_data):
-    """
-    Check if the segment between (x1, y1) and (x2, y2) intersects an obstacle.
-    English comments: Discretize the segment using map resolution.
-    """
-    # Calculate distance and angle between the two points
     dist = np.sqrt((x1 - x2)**2 + (y1 - y2)**2)
     theta = np.arctan2(y1 - y2, x1 - x2)
     
     res = map_data.info.resolution
-    steps = int(dist / res)
+    steps = int(dist / (res / 2.0))
     
     origin_x = map_data.info.origin.position.x
     origin_y = map_data.info.origin.position.y
@@ -44,8 +39,8 @@ def collision(x1, y1, x2, y2, map_data):
 
     for i in range(steps):
         # Interpolate coordinates along the line
-        curr_x = x1 + i * res * np.cos(theta)
-        curr_y = y1 + i * res * np.sin(theta)
+        curr_x = x1 + i * (res / 2.0) * np.cos(theta)
+        curr_y = y1 + i * (res / 2.0) * np.sin(theta)
         
         # Convert world (meters) to grid (pixels)
         gx = int((curr_x - origin_x) / res)

@@ -17,7 +17,7 @@ class RRTPlannerNode(Node):
         super().__init__('rrt_planner_node')
         
         # --- Parameters ---
-        self.step_size = 0.2  # Planning step in meters
+        self.step_size = 0.1  # Planning step in meters
         self.map_data = None  # To store the received OccupancyGrid
         self.latest_path = None  # To store the path for persistent publishing
         
