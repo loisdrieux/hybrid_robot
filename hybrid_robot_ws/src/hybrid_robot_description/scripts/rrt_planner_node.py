@@ -82,37 +82,55 @@ class RRTPlannerNode(Node):
             self.publish_path(self.latest_path)
 
     def follow_path(self):
+        # 1. Safety Check: Stop if not started or path is empty
         if not self.robot_started or not self.current_path:
             self.stop_robot()
             return
 
+        # 2. Extract current target waypoint (already in 'map' frame from RRT)
         target_x, target_y = self.current_path[0]
-        dx = target_x - self.robot_pose['x']
-        dy = target_y - self.robot_pose['y']
+    
+        # --- CRITICAL FIX: Use the map-frame coordinates ---
+        # We apply the offset from your static_tf_map_odom in the launch file
+        robot_map_x = self.robot_pose['x'] + 0.5 
+        robot_map_y = self.robot_pose['y'] + 5.0 
+
+        # 3. Calculate distance and angle using the CORRECTED coordinates
+        # Use robot_map_x/y instead of self.robot_pose['x']
+        dx = target_x - robot_map_x
+        dy = target_y - robot_map_y
         dist = math.sqrt(dx**2 + dy**2)
-        
-        # Augmenter un peu la distance de validation pour plus de fluidité
-        if dist < 0.3: 
+    
+        # Calculate absolute angle to target
+        angle_to_target = math.atan2(dy, dx)
+        # The yaw from odom is usually absolute, so it works in map frame too
+        angle_diff = math.atan2(math.sin(angle_to_target - self.robot_pose['yaw']), 
+                        math.cos(angle_to_target - self.robot_pose['yaw']))
+
+        # 4. STEP-BY-STEP DEBUG LOGGING (Updated to show map coordinates)
+        self.get_logger().info(
+            f"TARGET (map): [{target_x:.2f}, {target_y:.2f}] | "
+            f"POSE (map): [{robot_map_x:.2f}, {robot_map_y:.2f}] | "
+            f"DIST: {dist:.2f}m | ANGLE_ERR: {math.degrees(angle_diff):.1f}deg",
+            throttle_duration_sec=0.5
+        )
+
+        # 5. Check if waypoint is reached
+        if dist < 0.3: #Condition te say that we reached the point
+            self.get_logger().info(f"REACHED WAYPOINT: [{target_x:.2f}, {target_y:.2f}]")
             self.current_path.pop(0)
             return
 
-        angle_to_target = math.atan2(dy, dx)
-        # Normalisation stricte
-        angle_diff = math.atan2(math.sin(angle_to_target - self.robot_pose['yaw']), 
-                                math.cos(angle_to_target - self.robot_pose['yaw']))
-
+        # 6. Movement Logic (Remaining the same)
         msg = Twist()
-        # Seuil de rotation plus précis
-        if abs(angle_diff) > 0.15: 
-            # Rotation proportionnelle pour éviter les saccades
+        if abs(angle_diff) > 0.2: 
             msg.angular.z = 0.4 if angle_diff > 0 else -0.4
-            msg.linear.x = 0.05 # On garde une toute petite vitesse pour ne pas brouter
-        else:
+            msg.linear.x = 0.0
+        else: 
             msg.linear.x = 0.15 
-            msg.angular.z = angle_diff * 1.0 # Correction douce
+            msg.angular.z = angle_diff * 1.0 
 
         self.cmd_vel_pub.publish(msg)
-
 
     def map_callback(self, msg):
         """ Stores map data and triggers simulation once. """
