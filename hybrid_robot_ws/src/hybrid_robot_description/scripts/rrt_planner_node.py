@@ -9,6 +9,7 @@ from nav_msgs.msg import OccupancyGrid, Path
 from geometry_msgs.msg import PoseStamped
 from visualization_msgs.msg import Marker #To display a marker point on RVIZ
 from rclpy.qos import QoSProfile, DurabilityPolicy
+from std_msgs.msg import Empty
 
 # Corrected import: Remove the dot for ROS 2 standalone execution
 import rrt 
@@ -21,6 +22,12 @@ from nav_msgs.msg import Odometry
 class RRTPlannerNode(Node):
     def __init__(self):
         super().__init__('rrt_planner_node')
+        
+
+        self.robot_started = False
+        self.planning_timer = None # On stocke le timer pour pouvoir l'arrêter
+        self.start_sub = self.create_subscription(Empty, '/start_robot', self.start_callback, 10)
+        self.get_logger().info("System ready. Waiting for map, then use '/start_robot' to move.")
         
         # --- Parameters ---
         self.step_size = 0.1  # Planning step in meters
@@ -35,8 +42,8 @@ class RRTPlannerNode(Node):
 
         # Movement Constraints
         self.target_reached_dist = 0.25
-        self.linear_speed = 0.2
-        self.angular_speed = 0.5
+        self.linear_speed = 0.15
+        self.angular_speed = 0.4
 
         # New Publisher and Subscriber
         self.cmd_vel_pub = self.create_publisher(Twist, '/diff_drive_controller/cmd_vel_unstamped', 10)
@@ -64,65 +71,58 @@ class RRTPlannerNode(Node):
         
         self.get_logger().info("RRT* Node started. Persistent publishing enabled.")
 
+
+    def start_callback(self, msg):
+        self.get_logger().info("Starting signal received, the robot will start moving")
+        self.robot_started = True
+
     def timer_callback(self):
         """ Periodically publishes the saved path. """
         if self.latest_path is not None:
             self.publish_path(self.latest_path)
 
     def follow_path(self):
-        """
-        Dedicated function to handle robot movement along the RRT path.
-        """
-        # Check if we have a path to follow
-        if not self.current_path or self.map_data is None:
+        if not self.robot_started or not self.current_path:
             self.stop_robot()
             return
 
-        # Get the first waypoint from the list
         target_x, target_y = self.current_path[0]
+        dx = target_x - self.robot_pose['x']
+        dy = target_y - self.robot_pose['y']
+        dist = math.sqrt(dx**2 + dy**2)
         
-        # Calculate Euclidean distance to the target waypoint
-        dist = math.sqrt((target_x - self.robot_pose['x'])**2 + 
-                         (target_y - self.robot_pose['y'])**2)
-        
-        # Calculate the angle (bearing) to the target
-        angle_to_target = math.atan2(target_y - self.robot_pose['y'], 
-                                     target_x - self.robot_pose['x'])
-        
-        # Calculate steering error and normalize between -pi and pi
+        # Augmenter un peu la distance de validation pour plus de fluidité
+        if dist < 0.3: 
+            self.current_path.pop(0)
+            return
+
+        angle_to_target = math.atan2(dy, dx)
+        # Normalisation stricte
         angle_diff = math.atan2(math.sin(angle_to_target - self.robot_pose['yaw']), 
                                 math.cos(angle_to_target - self.robot_pose['yaw']))
 
         msg = Twist()
-
-        # LOGIC: If waypoint is reached, remove it and stop for a brief moment
-        if dist < self.target_reached_dist:
-            self.get_logger().info(f"Reached waypoint. Remaining: {len(self.current_path)-1}")
-            self.current_path.pop(0)
-            self.stop_robot()
-            return
-
-        # LOGIC: Prioritize rotation if the heading error is too large
-        if abs(angle_diff) > 0.2: # Approx 11 degrees
-            msg.angular.z = self.angular_speed if angle_diff > 0 else -self.angular_speed
-            msg.linear.x = 0.0
+        # Seuil de rotation plus précis
+        if abs(angle_diff) > 0.15: 
+            # Rotation proportionnelle pour éviter les saccades
+            msg.angular.z = 0.4 if angle_diff > 0 else -0.4
+            msg.linear.x = 0.05 # On garde une toute petite vitesse pour ne pas brouter
         else:
-            # Move forward and apply small steering corrections
-            msg.linear.x = self.linear_speed
-            msg.angular.z = angle_diff * 1.2 
+            msg.linear.x = 0.15 
+            msg.angular.z = angle_diff * 1.0 # Correction douce
 
-        # Publish the command to the differential drive controller
         self.cmd_vel_pub.publish(msg)
+
 
     def map_callback(self, msg):
         """ Stores map data and triggers simulation once. """
-        if self.map_data is None:
+        if self.map_data is None and msg.data:
             if not msg.data:
                 return
             self.get_logger().info("Map received! Running RRT planning in 2 seconds...")
             self.map_data = msg
-            # We use a single-shot timer to launch planning without blocking the node
-            self.create_timer(5.0, self.run_planning_timer_callback)
+            self.destroy_subscription(self.map_sub)
+            self.planning_timer=self.create_timer(5.0, self.run_planning_timer_callback)
             self.get_logger().info("Running RRT planning now...")
 
     def odom_callback(self, msg):
@@ -138,21 +138,27 @@ class RRTPlannerNode(Node):
         self.robot_pose['yaw'] = math.atan2(siny_cosp, cosy_cosp)
 
     def run_planning_timer_callback(self):
-        """Timer callback to run simulation and THEN start movement."""
-        # 1. On détruit ce timer pour qu'il ne s'exécute qu'une seule fois
-        # Note: Dans rclpy, on peut arrêter un timer après sa première exécution
-        
+    # Désactivation immédiate pour éviter la répétition
+        if self.planning_timer is not None:
+            self.planning_timer.cancel()
+            self.destroy_timer(self.planning_timer)
+            self.planning_timer = None # Crucial pour le 'if self.planning_timer is None' du callback
+
         self.get_logger().info("Running RRT calculation...")
-        path = self.run_simulation() # Ton calcul RRT*
-        
+        path = self.run_simulation() 
+    
+        # BLOC LOGIQUE CORRIGÉ
         if path:
             self.current_path = path
-            self.get_logger().info(f"Path found! Starting control loop at 10Hz.")
-            
-            # 2. SEULEMENT MAINTENANT on lance la boucle de mouvement
-            # On utilise 10Hz (0.1) au lieu de 20Hz pour économiser ton CPU
+            self.latest_path = path
+            self.get_logger().info(f"Path found with {len(path)} points!")
+        
+            # On ne crée le timer de contrôle qu'une seule fois
             if self.control_timer is None:
                 self.control_timer = self.create_timer(0.1, self.follow_path)
+        else:
+            # L'erreur ne doit s'afficher QUE si path est None
+            self.get_logger().error("RRT failed to find a path.")
 
     def run_simulation(self):
         """ Main logic to call the RRT algorithm. """
@@ -236,6 +242,13 @@ class RRTPlannerNode(Node):
         marker.color.a = 1.0 # Fully opaque
         
         self.marker_pub.publish(marker)
+    
+    def stop_robot(self):
+        """ Publishes a zero velocity command to safely stop the robot. """
+        msg = Twist()
+        msg.linear.x = 0.0
+        msg.angular.z = 0.0
+        self.cmd_vel_pub.publish(msg)
 
 def main(args=None):
     rclpy.init(args=args)
