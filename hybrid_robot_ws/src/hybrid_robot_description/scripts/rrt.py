@@ -25,35 +25,41 @@ class Nodes:
 # check collision
 import numpy as np
 
-# Modified collision function for rrt.py
 def collision(x1, y1, x2, y2, map_data):
+    """
+    Checks for collisions between two points (x1, y1) and (x2, y2).
+    Includes a safety buffer (inflation) around obstacles.
+    """
     dist = np.sqrt((x1 - x2)**2 + (y1 - y2)**2)
-    theta = np.arctan2(y1 - y2, x1 - x2)
+    theta = np.arctan2(y2 - y1, x2 - x1)
     
     res = map_data.info.resolution
-    steps = int(dist / (res / 2.0))
+    # Increase precision: check every 2.5cm instead of 5cm
+    test_steps = int(dist / (res / 2.0))
     
     origin_x = map_data.info.origin.position.x
     origin_y = map_data.info.origin.position.y
     width = map_data.info.width
+    height = map_data.info.height
 
-    for i in range(steps):
-        # Interpolate coordinates along the line
+    for i in range(test_steps):
         curr_x = x1 + i * (res / 2.0) * np.cos(theta)
         curr_y = y1 + i * (res / 2.0) * np.sin(theta)
         
-        # Convert world (meters) to grid (pixels)
+        # Convert world coordinates to grid index
         gx = int((curr_x - origin_x) / res)
         gy = int((curr_y - origin_y) / res)
         
-        # Check map bounds
-        if 0 <= gx < width and 0 <= gy < map_data.info.height:
-            index = gy * width + gx
-            # 100 = obstacle, -1 = unknown
-            if map_data.data[index] > 50 or map_data.data[index] == -1:
-                return True # Collision detected
-        else:
-            return True # Out of bounds
+        # Check current pixel and neighbors (Inflation)
+        # This adds a small safety margin so the robot doesn't scratch the walls
+        for dx in [-1, 0, 1]:
+            for dy in [-1, 0, 1]:
+                nx, ny = gx + dx, gy + dy
+                if 0 <= nx < width and 0 <= ny < height:
+                    index = ny * width + nx
+                    # Obstacle detected if value > 50 or unknown (-1)
+                    if map_data.data[index] > 50 or map_data.data[index] == -1:
+                        return True
     return False
     
 # check the  collision with obstacle and trim
@@ -120,7 +126,7 @@ class RRT:
 
     def planning(self):
         # Implementation of the RRT loop using meters
-        for i in range(500): # max iterations
+        for i in range(5000): # max iterations
             # Sample a random point within the terrestrial bounds
             nx = random.uniform(self.rand_area[0], self.rand_area[1])
             ny = random.uniform(self.rand_area[2], self.rand_area[3])

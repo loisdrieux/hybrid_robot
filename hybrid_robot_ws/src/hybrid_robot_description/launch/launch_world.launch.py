@@ -66,13 +66,23 @@ def generate_launch_description():
         output="screen",
     )
 
+    #Launch del calculo del path
+    rrt_planner_node = Node(
+        package='hybrid_robot_description',
+        executable='rrt_planner_node.py',
+        name='rrt_planner_node',
+        output='screen',
+        emulate_tty=True, 
+        parameters=[{'use_sim_time': True}]
+    )
+
     # --- 4. LANZAMIENTO Y CONFIGURACIÓN DEL MAPA ---
 
     # f) Map Server
     node_map_server = Node(
         package='nav2_map_server',
         executable='map_server',
-        name='map_server',  # <--- CE NOM DOIT ÊTRE EXACT
+        name='map_server', 
         output='screen',
         parameters=[{
             'use_sim_time': True,
@@ -128,7 +138,18 @@ def generate_launch_description():
         period=15.0,
         actions=[rviz_node]
     )
+
+    launch_map_logic = TimerAction(
+        period=5.0,
+        actions=[
+            node_map_server,
+            lifecycle_manager_node,
+            static_tf_world_map,
+            static_tf_map_odom
+        ]
+    )
     
+
     return LaunchDescription([
         # Orden lógico de ejecución
         gazebo_launch,
@@ -140,11 +161,9 @@ def generate_launch_description():
         load_diff_drive_controller,
         
         # Mapa y TFs
-        node_map_server,
-        lifecycle_manager_node,
-        static_tf_world_map,
-        static_tf_map_odom,
-        
+        rrt_planner_node,
+        launch_map_logic,
+
         # Visualización
         launch_rviz,
     ])
