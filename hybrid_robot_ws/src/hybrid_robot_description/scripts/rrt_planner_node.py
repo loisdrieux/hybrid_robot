@@ -6,9 +6,9 @@ import time
 
 # ROS 2 message imports
 from nav_msgs.msg import OccupancyGrid, Path
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, Twist, Point
 from visualization_msgs.msg import Marker #To display a marker point on RVIZ
-from rclpy.qos import QoSProfile, DurabilityPolicy
+from rclpy.qos import QoSProfile, DurabilityPolicy, HistoryPolicy
 from std_msgs.msg import Empty
 
 # Corrected import: Remove the dot for ROS 2 standalone execution
@@ -16,7 +16,6 @@ import rrt
 from rrt import RRT, collision
 
 import math
-from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 
 class RRTPlannerNode(Node):
@@ -29,6 +28,14 @@ class RRTPlannerNode(Node):
         self.start_sub = self.create_subscription(Empty, '/start_robot', self.start_callback, 10)
         self.get_logger().info("System ready. Waiting for map, then use '/start_robot' to move.")
         
+        map_qos = QoSProfile(depth=1)
+        map_qos.durability = DurabilityPolicy.TRANSIENT_LOCAL
+        tree_qos = QoSProfile(
+            history=HistoryPolicy.KEEP_LAST,
+            depth=1,
+            durability=DurabilityPolicy.TRANSIENT_LOCAL # Keeps the tree in memory for RViz
+        )
+
         # --- Parameters ---
         self.step_size = 0.1  # Planning step in meters
         self.control_timer = None 
@@ -36,7 +43,7 @@ class RRTPlannerNode(Node):
         self.current_path = [] 
         self.latest_path = None  # To store the path for persistent publishing
         self.marker_pub = self.create_publisher(Marker, 'goal_marker', 10)
-
+        self.tree_pub = self.create_publisher(Marker, '/rrt_tree', tree_qos)
         # Robot State
         self.robot_pose = {'x': 0.0, 'y': 0.0, 'yaw': 0.0}
 
@@ -50,8 +57,7 @@ class RRTPlannerNode(Node):
         self.odom_sub = self.create_subscription(Odometry, '/diff_drive_controller/odom', self.odom_callback, 10)
         
         # --- Subscribers ---
-        map_qos = QoSProfile(depth=1)
-        map_qos.durability = DurabilityPolicy.TRANSIENT_LOCAL
+
 
         self.map_sub = self.create_subscription(
             OccupancyGrid,
@@ -156,27 +162,74 @@ class RRTPlannerNode(Node):
         self.robot_pose['yaw'] = math.atan2(siny_cosp, cosy_cosp)
 
     def run_planning_timer_callback(self):
-    # Désactivation immédiate pour éviter la répétition
-        if self.planning_timer is not None:
+        # 1. Cancel the timer to prevent loops
+        if self.planning_timer:
             self.planning_timer.cancel()
             self.destroy_timer(self.planning_timer)
-            self.planning_timer = None # Crucial pour le 'if self.planning_timer is None' du callback
+            self.planning_timer = None
 
-        self.get_logger().info("Running RRT calculation...")
-        path = self.run_simulation() 
+        self.get_logger().info("Running RRT* calculation...")
+        
+        # 2. Extract both values from run_simulation
+        result = self.run_simulation()
+        
+        # Check if run_simulation returned the expected tuple
+        if result is None:
+            self.get_logger().error("RRT* failed to initialize.")
+            return
+
+        path, planner = result # Unpack the tuple
     
-        # BLOC LOGIQUE CORRIGÉ
         if path:
             self.current_path = path
             self.latest_path = path
+            
+            # 3. Publish the exploration tree ONLY if planner exists
+            if planner and hasattr(planner, 'node_list'):
+                all_nodes = planner.node_list 
+                self.publish_tree(all_nodes)
+            
             self.get_logger().info(f"Path found with {len(path)} points!")
-        
-            # On ne crée le timer de contrôle qu'une seule fois
+            
             if self.control_timer is None:
                 self.control_timer = self.create_timer(0.1, self.follow_path)
         else:
-            # L'erreur ne doit s'afficher QUE si path est None
-            self.get_logger().error("RRT failed to find a path.")
+            self.get_logger().error("RRT failed to find a path. No tree to display.")
+    
+    
+    def publish_tree(self, nodes):
+        """
+        Publishes the entire exploration tree as a series of lines in RViz.
+        """
+        marker = Marker()
+        marker.header.frame_id = "map"
+        marker.header.stamp = self.get_clock().now().to_msg()
+        marker.ns = "rrt_tree"
+        marker.id = 1
+        marker.type = Marker.LINE_LIST # Each pair of points forms a line segment
+        marker.action = Marker.ADD
+    
+        # Visual style: Thin blue lines
+        marker.scale.x = 0.02 # Line width
+        marker.color.r = 0.0
+        marker.color.g = 0.5
+        marker.color.b = 1.0
+        marker.color.a = 0.6 # Slightly transparent
+    
+        for node in nodes:
+            if len(node.parent_x) > 1:
+                # Point 1: The current node
+                p1 = Point()
+                p1.x, p1.y, p1.z = float(node.x), float(node.y), 0.05
+            
+                # Point 2: Its parent (the last point before current in the parent list)
+                p2 = Point()
+                p2.x, p2.y, p2.z = float(node.parent_x[-2]), float(node.parent_y[-2]), 0.05
+            
+                marker.points.append(p1)
+                marker.points.append(p2)
+            
+        self.tree_pub.publish(marker)
 
     def run_simulation(self):
         """ Main logic to call the RRT algorithm. """
@@ -208,10 +261,10 @@ class RRTPlannerNode(Node):
             self.latest_path = path  
             self.current_path = path # Transmettre directement ici
             self.get_logger().info(f"Path loaded: {len(self.current_path)} points.")
-            return path # Retourner le path pour le timer callback
+            return path, planner # Retourner le path pour le timer callback
         else:
             self.get_logger().warn("RRT failed to find a valid path.")
-            return None
+            return None, planner
 
 
     def publish_path(self, rrt_path):
