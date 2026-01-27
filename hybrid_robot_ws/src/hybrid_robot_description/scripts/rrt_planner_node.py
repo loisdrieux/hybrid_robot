@@ -36,13 +36,19 @@ class RRTPlannerNode(Node):
             durability=DurabilityPolicy.TRANSIENT_LOCAL # Keeps the tree in memory for RViz
         )
 
+        marker_qos = QoSProfile(
+            history=HistoryPolicy.KEEP_LAST,
+            depth=1,
+            durability=DurabilityPolicy.TRANSIENT_LOCAL # Keeps the tree in memory for RViz
+        )
+
         # --- Parameters ---
         self.step_size = 0.1  # Planning step in meters
         self.control_timer = None 
         self.map_data = None
         self.current_path = [] 
         self.latest_path = None  # To store the path for persistent publishing
-        self.marker_pub = self.create_publisher(Marker, 'goal_marker', 10)
+        self.marker_pub = self.create_publisher(Marker, 'goal_marker', marker_qos)
         self.tree_pub = self.create_publisher(Marker, '/rrt_tree', tree_qos)
         # Robot State
         self.robot_pose = {'x': 0.0, 'y': 0.0, 'yaw': 0.0}
