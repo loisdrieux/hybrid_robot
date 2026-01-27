@@ -9,11 +9,11 @@ from nav_msgs.msg import OccupancyGrid, Path
 from geometry_msgs.msg import PoseStamped, Twist, Point
 from visualization_msgs.msg import Marker #To display a marker point on RVIZ
 from rclpy.qos import QoSProfile, DurabilityPolicy, HistoryPolicy
-from std_msgs.msg import Empty
+from std_msgs.msg import Empty, Float64MultiArray
 
 # Corrected import: Remove the dot for ROS 2 standalone execution
 import rrt 
-from rrt import RRT, collision
+from rrt import RRT, collision_3d
 
 import math
 from nav_msgs.msg import Odometry
@@ -61,7 +61,7 @@ class RRTPlannerNode(Node):
         # New Publisher and Subscriber
         self.cmd_vel_pub = self.create_publisher(Twist, '/diff_drive_controller/cmd_vel_unstamped', 10)
         self.odom_sub = self.create_subscription(Odometry, '/diff_drive_controller/odom', self.odom_callback, 10)
-        
+        self.drone_pos_pub = self.create_publisher(Float64MultiArray, '/aerial_joint_controller/commands', 10)
         # --- Subscribers ---
 
 
@@ -99,26 +99,25 @@ class RRTPlannerNode(Node):
             self.stop_robot()
             return
 
-        # 2. Extract current target waypoint (already in 'map' frame from RRT)
-        target_x, target_y = self.current_path[0]
-    
-        # --- CRITICAL FIX: Use the map-frame coordinates ---
-        # We apply the offset from your static_tf_map_odom in the launch file
+        # Target waypoint 3D
+        target_x, target_y, target_z = self.current_path[0]
+        
+        # 1. Pilotage de l'altitude (Drone)
+        z_msg = Float64MultiArray()
+        z_msg.data = [float(target_z)]
+        self.drone_pos_pub.publish(z_msg)
+
+        # 2. Pilotage Terrestre (Base)
         robot_map_x = self.robot_pose['x'] + 0.5 
         robot_map_y = self.robot_pose['y'] + 5.0 
 
-        # 3. Calculate distance and angle using the CORRECTED coordinates
-        # Use robot_map_x/y instead of self.robot_pose['x']
         dx = target_x - robot_map_x
         dy = target_y - robot_map_y
         dist = math.sqrt(dx**2 + dy**2)
-    
-        # Calculate absolute angle to target
-        angle_to_target = math.atan2(dy, dx)
-        # The yaw from odom is usually absolute, so it works in map frame too
-        angle_diff = math.atan2(math.sin(angle_to_target - self.robot_pose['yaw']), 
-                        math.cos(angle_to_target - self.robot_pose['yaw']))
 
+        angle_to_target = math.atan2(dy, dx)
+        angle_diff = math.atan2(math.sin(angle_to_target - self.robot_pose['yaw']), 
+                                math.cos(angle_to_target - self.robot_pose['yaw']))
         # 4. STEP-BY-STEP DEBUG LOGGING (Updated to show map coordinates)
         self.get_logger().info(
             f"TARGET (map): [{target_x:.2f}, {target_y:.2f}] | "
@@ -239,13 +238,14 @@ class RRTPlannerNode(Node):
 
     def run_simulation(self):
         """ Main logic to call the RRT algorithm. """
+        # Area: [min_x, max_x, min_y, max_y, min_z, max_z]
+        rand_area = [0.1, 9.8, 0.1, 9.9, 0.0, 3.0] 
+
+        # English comment: Start/Goal in [x, y, z]. Z=0 means landed on terrestrial robot.
+        start = [0.5, 5.0, 0.0]  
+        goal = [9.5, 7.5, 0.0]   
         
-        rand_area = [0.1, 9.8, 0.1, 9.9] 
-    
-        # Use the start/goal that correspond to the visual map
-        start = [0.5, 5.0]  
-        goal = [9.5, 7.5 ]   #Behind the second obstacle
-        self.get_logger().info(f"Planning from {start} to {goal}...")
+        self.get_logger().info(f"Planning from {start} to {goal} in 3D...")
         start_time = time.time()
 
         # Initialize the RRT algorithm class
@@ -281,11 +281,9 @@ class RRTPlannerNode(Node):
         
         for point in rrt_path:
             pose = PoseStamped()
-            pose.header.frame_id = "map"
             pose.pose.position.x = float(point[0])
             pose.pose.position.y = float(point[1])
-            # Set Z to 0.1 to ensure visibility above the floor in RViz
-            pose.pose.position.z = 0.1 
+            pose.pose.position.z = float(point[2]) + 0.1 # +0.1 for better visibility
             path_msg.poses.append(pose)
             
         self.path_pub.publish(path_msg)

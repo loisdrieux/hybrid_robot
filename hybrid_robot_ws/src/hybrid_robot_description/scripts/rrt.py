@@ -16,144 +16,170 @@ import os
 
 class Nodes:
     """Class to store the RRT graph"""
-    def __init__(self, x,y):
+    def __init__(self, x, y, z):
         self.x = x
         self.y = y
+        self.z = z # Ajout de l'altitude
         self.parent_x = []
         self.parent_y = []
+        self.parent_z = []
 
 # check collision
 import numpy as np
 
-def collision(x1, y1, x2, y2, map_data):
+def collision_3d(x1, y1, z1, x2, y2, z2, map_data):
     """
-    Checks for collisions between two points (x1, y1) and (x2, y2).
-    Includes a safety buffer (inflation) around obstacles.
+    Checks for collisions. If altitude Z > 1.0m, we assume we fly over 
+    the shelves (2D obstacles).
     """
+    # Si le point de départ et d'arrivée sont en hauteur, pas de collision
+    # On considère que les obstacles (étagères) font moins de 1.0m
+    if z1 > 1.0 and z2 > 1.0:
+        return False 
+
+    # Sinon, on vérifie la collision standard sur la map 2D
     dist = np.sqrt((x1 - x2)**2 + (y1 - y2)**2)
     theta = np.arctan2(y2 - y1, x2 - x1)
-    
     res = map_data.info.resolution
-    # Increase precision: check every 2.5cm instead of 5cm
-    test_steps = int(dist / (res / 2.0))
+    test_steps = int(dist / res)
     
     origin_x = map_data.info.origin.position.x
     origin_y = map_data.info.origin.position.y
     width = map_data.info.width
     height = map_data.info.height
-
-    # --- SAFETY MARGIN CONFIGURATION ---
-    # Increase this value to move the robot further from walls
-    # 6 pixels * 0.05m = 0.30m of safety margin
     safety_margin_px = 3
 
     for i in range(test_steps):
         curr_x = x1 + i * (res / 2.0) * np.cos(theta)
         curr_y = y1 + i * (res / 2.0) * np.sin(theta)
-        
         gx = int((curr_x - origin_x) / res)
         gy = int((curr_y - origin_y) / res)
         
-        # Check current pixel and neighbors within the safety margin
         for dx in range(-safety_margin_px, safety_margin_px + 1):
             for dy in range(-safety_margin_px, safety_margin_px + 1):
                 nx, ny = gx + dx, gy + dy
                 if 0 <= nx < width and 0 <= ny < height:
                     index = ny * width + nx
-                    # Obstacle detected if value > 50 or unknown (-1)
                     if map_data.data[index] > 50 or map_data.data[index] == -1:
                         return True
     return False
     
 # check the  collision with obstacle and trim
-def check_collision(x1, y1, x2, y2, map_data, end_goal, step_size): # Add step_size here
+def check_collision_3d(x1, y1, z1, x2, y2, z2, map_data, goal, step_size):
     """
-    Validates a new node and its connections.
+    Calculates the new point position in 3D and checks for obstacles.
     """
-    _, theta = dist_and_angle(x2, y2, x1, y1)
+    # Calcul de la distance et des angles (polaire + azimut)
+    dx = x1 - x2
+    dy = y1 - y2
+    dz = z1 - z2
+    dist_total = math.sqrt(dx**2 + dy**2 + dz**2)
     
-    # Use the step_size passed as argument
-    x = x2 + step_size * np.cos(theta)
-    y = y2 + step_size * np.sin(theta)
+    if dist_total == 0:
+        return x2, y2, z2, False, False
 
-    # ... rest of the function remains the same ...
+    # Projection du pas (step_size) sur les axes
+    tx = x2 + (dx / dist_total) * step_size
+    ty = y2 + (dy / dist_total) * step_size
+    tz = z2 + (dz / dist_total) * step_size
+
+    # Vérification des limites de la carte
     res = map_data.info.resolution
-    width = map_data.info.width
     origin_x = map_data.info.origin.position.x
     origin_y = map_data.info.origin.position.y
+    grid_x = int((tx - origin_x) / res)
+    grid_y = int((ty - origin_y) / res)
 
-    grid_x = int((x - origin_x) / res)
-    grid_y = int((y - origin_y) / res)
+    if grid_x < 0 or grid_x >= map_data.info.width or grid_y < 0 or grid_y >= map_data.info.height:
+        return tx, ty, tz, False, False
 
-    if grid_x < 0 or grid_x >= width or grid_y < 0 or grid_y >= map_data.info.height:
-        return (x, y, False, False)
+    # English comment: Check collision using the 3D logic (Z > 1.0m clears obstacles)
+    nodeCon = not collision_3d(x2, y2, z2, tx, ty, tz, map_data)
+    # Vérification si le but est directement accessible depuis ce nouveau point
+    directCon = not collision_3d(tx, ty, tz, goal[0], goal[1], goal[2], map_data)
 
-    directCon = not collision(x, y, end_goal[0], end_goal[1], map_data)
-    nodeCon = not collision(x, y, x2, y2, map_data)
-
-    return (x, y, directCon, nodeCon)
-
-
-# return dist and angle b/w new point and nearest node
-def dist_and_angle(x1,y1,x2,y2):
-    dist = math.sqrt( ((x1-x2)**2)+((y1-y2)**2) )
-    angle = math.atan2(y2-y1, x2-x1)
-    return(dist,angle)
-
-# return the neaerst node index
-def nearest_node(x,y):
-    temp_dist=[]
-    for i in range(len(node_list)):
-        dist,_ = dist_and_angle(x,y,node_list[i].x,node_list[i].y)
-        temp_dist.append(dist)
-    return temp_dist.index(min(temp_dist))
-
-# generate a random point in the image space
-def rnd_point(h,l):
-    new_y = random.randint(0, h)
-    new_x = random.randint(0, l)
-    return (new_x,new_y)
+    return tx, ty, tz, directCon, nodeCon
 
 
+
+
+
+Z_PENALTY = 5.0 
 class RRT:
     def __init__(self, start, goal, rand_area, step_size, map_data):
-        self.start = start
-        self.goal = goal
-        self.rand_area = rand_area # [min_x, max_x, min_y, max_y]
+        self.start = start # [x, y, z]
+        self.goal = goal   # [x, y, z]
+        self.rand_area = rand_area # [min_x, max_x, min_y, max_y, min_z, max_z]
         self.step_size = step_size
         self.map_data = map_data
-        # Initialize node list with the start position
-        self.node_list = [Nodes(start[0], start[1])]
-        self.node_list[0].parent_x = [start[0]]
-        self.node_list[0].parent_y = [start[1]]
+        self.node_list = [Nodes(start[0], start[1], start[2])]
+
+        # return dist and angle b/w new point and nearest node
+    def dist_and_angle_3d(self,x1, y1, z1, x2, y2, z2):
+        dist = math.sqrt((x1-x2)**2 + (y1-y2)**2 + (z1-z2)**2)
+        theta = math.atan2(y2-y1, x2-x1) # Angle plan horizontal
+        return dist, theta
+
+    # return the neaerst node index
+    def get_nearest_node_index(self, nx, ny, nz):
+        """
+        Finds the nearest node in 3D, applying a penalty to Z to favor ground nodes.
+        """
+        # Utilisation de la pénalité Z pour que le robot préfère rester au sol
+        dlist = [
+            (node.x - nx)**2 + (node.y - ny)**2 + ((node.z - nz)**2 * Z_PENALTY) 
+            for node in self.node_list
+        ]
+        return dlist.index(min(dlist))
 
     def planning(self):
-        # Implementation of the RRT loop using meters
-        for i in range(1000): # max iterations
-            # Sample a random point within the terrestrial bounds
+        for i in range(50000):
+            # English comment: 70% of the time, try to stay on the ground (Z=0)
+            # This forces the robot to look for a 2D path first
+            if random.random() < 0.7:
+                nz = 0.0
+            else:
+                nz = random.uniform(self.rand_area[4], self.rand_area[5])
+                
             nx = random.uniform(self.rand_area[0], self.rand_area[1])
             ny = random.uniform(self.rand_area[2], self.rand_area[3])
 
-            # Find nearest node
-            dlist = [(node.x - nx)**2 + (node.y - ny)**2 for node in self.node_list]
+            # English comment: Distance calculation with Z penalty
+            # The robot will prefer a node further away on the ground than a closer one in the air
+            dlist = [
+                (n.x - nx)**2 + (n.y - ny)**2 + ((n.z - nz)**2 * Z_PENALTY) 
+                for n in self.node_list
+            ]
+            
             nearest_ind = dlist.index(min(dlist))
-            nearest_node = self.node_list[nearest_ind]
+            near_node = self.node_list[nearest_ind]
 
-            # Use the check_collision logic we integrated earlier
-            tx, ty, directCon, nodeCon = check_collision( nx, ny, nearest_node.x, nearest_node.y, self.map_data, self.goal, self.step_size)
+            # Direction vector
+            dist_xy, theta_xy = self.dist_and_angle_3d(nx, ny, nz, near_node.x, near_node.y, near_node.z)
 
-            if nodeCon:
-                new_node = Nodes(tx, ty)
-                new_node.parent_x = nearest_node.parent_x + [tx]
-                new_node.parent_y = nearest_node.parent_y + [ty]
+            # English comment: Calculate vertical angle (phi) using the altitude difference
+            phi = math.atan2(nz - near_node.z, dist_xy)
+
+            # English comment: 3D Projection for the new point (tx, ty, tz)
+            tx = near_node.x + self.step_size * math.cos(phi) * math.cos(theta_xy)
+            ty = near_node.y + self.step_size * math.cos(phi) * math.sin(theta_xy)
+            tz = near_node.z + self.step_size * math.sin(phi)
+
+
+            if not collision_3d(near_node.x, near_node.y, near_node.z, tx, ty, tz, self.map_data):
+                new_node = Nodes(tx, ty, tz)
+                new_node.parent_x = near_node.parent_x + [tx]
+                new_node.parent_y = near_node.parent_y + [ty]
+                new_node.parent_z = near_node.parent_z + [tz]
                 self.node_list.append(new_node)
 
-                if directCon:
-                    # Target reached: return the path as a list of [x, y]
-                    path = [[px, py] for px, py in zip(new_node.parent_x, new_node.parent_y)]
-                    path.append([self.goal[0], self.goal[1]])
+                # Check if goal reached
+                d_goal = math.sqrt((tx-self.goal[0])**2 + (ty-self.goal[1])**2 + (tz-self.goal[2])**2)
+                if d_goal < self.step_size:
+                    path = [[px, py, pz] for px, py, pz in zip(new_node.parent_x, new_node.parent_y, new_node.parent_z)]
                     return path
         return None
+
 
     def get_nearest_node_index(self, x, y):
         dlist = [(node.x - x)**2 + (node.y - y)**2 for node in self.node_list]

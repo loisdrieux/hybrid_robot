@@ -66,6 +66,13 @@ def generate_launch_description():
         output="screen",
     )
 
+    load_aerial_controller = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["aerial_joint_controller"],
+        output="screen",
+    )
+
     #Launch del calculo del path
     rrt_planner_node = Node(
         package='hybrid_robot_description',
@@ -159,6 +166,7 @@ def generate_launch_description():
         # Carga automática de controladores
         load_joint_state_broadcaster,
         load_diff_drive_controller,
+        load_aerial_controller,
         
         # Mapa y TFs
         rrt_planner_node,

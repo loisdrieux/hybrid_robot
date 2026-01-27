@@ -3,36 +3,26 @@
     <xacro:macro name="drone_assembly" params="parent_link">
         <link name="drone_base_link">
             <visual>
-                <origin xyz="0 0 0.025" rpy="0 0 0" />
-                <geometry><box size="0.3 0.3 0.05" /></geometry>
-                <material name="Blue"><color rgba="0 0 1 1"/></material>
+                <origin xyz="0 0 0.025" rpy="0 0 0" /><geometry><box size="0.3 0.3 0.05" /></geometry><material name="Blue"/>
             </visual>
-            <collision>
-                <origin xyz="0 0 0.025" rpy="0 0 0" />
-                <geometry><box size="0.3 0.3 0.05" /></geometry>
-            </collision>
+            <collision><origin xyz="0 0 0.025" rpy="0 0 0" /><geometry><box size="0.3 0.3 0.05" /></geometry></collision>
             <inertial>
-                <mass value="1.0" />
+                <mass value="0.5" />
                 <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.02" />
             </inertial>
         </link>
 
-        <joint name="drone_to_terrestrial_joint" type="fixed">
-            <parent link="${parent_link}" />
-            <child link="drone_base_link" />
-            <origin xyz="0 0 0.01" rpy="0 0 0" />
+        <joint name="drone_to_terrestrial_joint" type="prismatic">
+            <parent link="${parent_link}" /><child link="drone_base_link" />
+            <origin xyz="0 0 0.01" rpy="0 0 0" /><axis xyz="0 0 1" />
+            <limit lower="0" upper="3.0" effort="2000" velocity="1.0" />
+            <dynamics damping="100.0" friction="50.0"/>
         </joint>
 
         <xacro:macro name="prop" params="p_name x y">
-            <link name="${p_name}_link">
-                <visual><geometry><cylinder radius="0.08" length="0.01"/></geometry></visual>
-            </link>
-            <joint name="${p_name}_joint" type="fixed">
-                <parent link="drone_base_link"/><child link="${p_name}_link"/>
-                <origin xyz="${x} ${y} 0.05" rpy="0 0 0"/>
-            </joint>
+            <link name="${p_name}_link"><visual><geometry><cylinder radius="0.08" length="0.01"/></geometry></visual></link>
+            <joint name="${p_name}_joint" type="fixed"><parent link="drone_base_link"/><child link="${p_name}_link"/><origin xyz="${x} ${y} 0.05" rpy="0 0 0"/></joint>
         </xacro:macro>
-        <xacro:prop p_name="fl" x="0.12" y="0.12"/><xacro:prop p_name="fr" x="0.12" y="-0.12"/>
-        <xacro:prop p_name="rl" x="-0.12" y="0.12"/><xacro:prop p_name="rr" x="-0.12" y="-0.12"/>
+        <xacro:prop p_name="fl" x="0.12" y="0.12"/><xacro:prop p_name="fr" x="0.12" y="-0.12"/><xacro:prop p_name="rl" x="-0.12" y="0.12"/><xacro:prop p_name="rr" x="-0.12" y="-0.12"/>
     </xacro:macro>
 </robot>
