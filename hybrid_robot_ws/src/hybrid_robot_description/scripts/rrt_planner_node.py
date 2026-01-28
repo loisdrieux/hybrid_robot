@@ -8,7 +8,7 @@ import time
 from nav_msgs.msg import OccupancyGrid, Path
 from geometry_msgs.msg import PoseStamped, Twist, Point
 from visualization_msgs.msg import Marker #To display a marker point on RVIZ
-from rclpy.qos import QoSProfile, DurabilityPolicy, HistoryPolicy
+from rclpy.qos import QoSProfile, DurabilityPolicy, HistoryPolicy, ReliabilityPolicy
 from std_msgs.msg import Empty, Float64MultiArray
 
 # Corrected import: Remove the dot for ROS 2 standalone execution
@@ -38,19 +38,18 @@ class RRTPlannerNode(Node):
 
         marker_qos = QoSProfile(
             history=HistoryPolicy.KEEP_LAST,
-            depth=1,
+            depth=10,
+            reliability=ReliabilityPolicy.RELIABLE,
             durability=DurabilityPolicy.TRANSIENT_LOCAL # Keeps the tree in memory for RViz
         )
 
-        # --- Parameters ---
+        # Parameters
         self.step_size = 0.1  # Planning step in meters
         self.control_timer = None 
         self.map_data = None
+        self.latest_goal = None
         self.current_path = [] 
-        self.latest_path = None  # To store the path for persistent publishing
-        self.marker_pub = self.create_publisher(Marker, 'goal_marker', marker_qos)
-        self.tree_pub = self.create_publisher(Marker, '/rrt_tree', tree_qos)
-        # Robot State
+        self.latest_path = None  # To store the path for publishing
         self.robot_pose = {'x': 0.0, 'y': 0.0, 'yaw': 0.0}
 
         # Movement Constraints
@@ -58,29 +57,22 @@ class RRTPlannerNode(Node):
         self.linear_speed = 0.15
         self.angular_speed = 0.4
 
-        # New Publisher and Subscriber
-        self.cmd_vel_pub = self.create_publisher(Twist, '/diff_drive_controller/cmd_vel_unstamped', 10)
-        self.odom_sub = self.create_subscription(Odometry, '/diff_drive_controller/odom', self.odom_callback, 10)
-        self.drone_pos_pub = self.create_publisher(Float64MultiArray, '/aerial_joint_controller/commands', 10)
-        # --- Subscribers ---
-
-
-        self.map_sub = self.create_subscription(
-            OccupancyGrid,
-            '/map',
-            self.map_callback,
-            map_qos) 
-        
-
-        # --- Publishers ---
-        # Output the path to be visualized in RViz
-        self.path_pub = self.create_publisher(Path, '/rrt_path', 10)
-        self.marker_pub = self.create_publisher(Marker, 'goal_marker', 10)
-        # --- Timer ---
-        # Periodically republish the path to ensure RViz receives it
+        # Timer
         self.timer = self.create_timer(1.0, self.timer_callback)
-        #self.timer = self.create_timer(0.1, self.follow_path)
+        self.marker_timer = self.create_timer(1.0, self.timer_callback)
+
+        # Subscribers
+        self.map_sub = self.create_subscription(OccupancyGrid, '/map', self.map_callback, map_qos) 
+        self.odom_sub = self.create_subscription(Odometry, '/diff_drive_controller/odom', self.odom_callback, 10)
+  
+        # Publishers
+        self.path_pub = self.create_publisher(Path, '/rrt_path', 10)
+        self.cmd_vel_pub = self.create_publisher(Twist, '/diff_drive_controller/cmd_vel_unstamped', 10)
+        self.drone_pos_pub = self.create_publisher(Float64MultiArray, '/aerial_joint_controller/commands', 10)
+        self.marker_pub = self.create_publisher(Marker, 'goal_marker', marker_qos)
+        self.tree_pub = self.create_publisher(Marker, '/rrt_tree', tree_qos)
         
+        # Info
         self.get_logger().info("RRT* Node started. Persistent publishing enabled.")
 
 
@@ -91,7 +83,9 @@ class RRTPlannerNode(Node):
     def timer_callback(self):
         """ Periodically publishes the saved path. """
         if self.latest_path is not None:
-            self.publish_path(self.latest_path)
+            self.publish_path(self.latest_path) #Path
+        if self.latest_goal is not None:
+            self.publish_goal_marker(self.latest_goal) #Goal marker
 
     def follow_path(self):
         # 1. Safety Check: Stop if not started or path is empty
@@ -236,19 +230,23 @@ class RRTPlannerNode(Node):
             
         self.tree_pub.publish(marker)
 
+    def set_goal(self, goal_coords):
+        self.latest_goal = [float(goal_coords[0]), float(goal_coords[1]), float(goal_coords[2])]
+
     def run_simulation(self):
         """ Main logic to call the RRT algorithm. """
-        # Area: [min_x, max_x, min_y, max_y, min_z, max_z]
         rand_area = [0.1, 9.8, 0.1, 9.9, 0.0, 3.0] 
-
-        # English comment: Start/Goal in [x, y, z]. Z=0 means landed on terrestrial robot.
         start = [0.5, 5.0, 0.0]  
         goal = [9.5, 7.5, 0.0]   
         
+        #Marker
+        self.latest_goal = goal    
+        self.publish_goal_marker(goal)
+
         self.get_logger().info(f"Planning from {start} to {goal} in 3D...")
         start_time = time.time()
 
-        # Initialize the RRT algorithm class
+        # Planner
         planner = RRT(
             start=start,
             goal=goal,
@@ -256,8 +254,7 @@ class RRTPlannerNode(Node):
             step_size=self.step_size,
             map_data=self.map_data
         )
-        
-        # Compute the path
+        # Path
         path = planner.planning()
         
         end_time = time.time()
@@ -265,9 +262,9 @@ class RRTPlannerNode(Node):
         if path:
             self.get_logger().info(f"Path found in {end_time - start_time:.4f}s")
             self.latest_path = path  
-            self.current_path = path # Transmettre directement ici
+            self.current_path = path 
             self.get_logger().info(f"Path loaded: {len(self.current_path)} points.")
-            return path, planner # Retourner le path pour le timer callback
+            return path, planner 
         else:
             self.get_logger().warn("RRT failed to find a valid path.")
             return None, planner
@@ -303,7 +300,7 @@ class RRTPlannerNode(Node):
         # Goal coordinates
         marker.pose.position.x = float(goal[0])
         marker.pose.position.y = float(goal[1])
-        marker.pose.position.z = 0.5 # Slightly above the floor
+        marker.pose.position.z = float(goal[2])
         
         # Size of the sphere (0.3m)
         marker.scale.x = 0.3
