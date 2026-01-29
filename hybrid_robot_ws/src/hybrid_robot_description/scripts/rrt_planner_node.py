@@ -204,7 +204,7 @@ class RRTPlannerNode(Node):
         marker.color.r = 0.0
         marker.color.g = 0.5
         marker.color.b = 1.0
-        marker.color.a = 0.6 # Slightly transparent
+        marker.color.a = 0.6 
     
         for node in nodes:
             if len(node.parent_x) > 1:
@@ -212,7 +212,7 @@ class RRTPlannerNode(Node):
                 p1 = Point()
                 p1.x, p1.y, p1.z = float(node.x), float(node.y), 0.05
             
-                # Point 2: Its parent (the last point before current in the parent list)
+                # Point 2: Its parent 
                 p2 = Point()
                 p2.x, p2.y, p2.z = float(node.parent_x[-2]), float(node.parent_y[-2]), 0.05
             
@@ -223,17 +223,15 @@ class RRTPlannerNode(Node):
 
     def run_simulation(self):
         """ Main logic to call the RRT algorithm. """
-        
         rand_area = [0.1, 14.8, 0.1, 9.9] 
-    
-        # Use the start/goal that correspond to the visual map
         start = [0.5, 5.0]  
-        goal = [13.5, 5.0 ] 
+        goal = [4.0, 9.0] #Goal to change
+
         self.latest_goal = goal
         self.get_logger().info(f"Planning from {start} to {goal}...")
         start_time = time.time()
 
-        # Initialize the RRT algorithm class
+        # RRT
         planner = RRT(
             start=start,
             goal=goal,
@@ -242,9 +240,7 @@ class RRTPlannerNode(Node):
             map_data=self.map_data
         )
         
-        # Compute the path
-        path = planner.planning()
-        
+        path = planner.planning() 
         end_time = time.time()
 
         if path:

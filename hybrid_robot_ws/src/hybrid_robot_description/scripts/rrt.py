@@ -129,7 +129,7 @@ class RRT:
 
     def planning(self):
         # Implementation of the RRT loop using meters
-        for i in range(1000): # max iterations
+        for i in range(5000): # max iterations
             # Sample a random point within the terrestrial bounds
             nx = random.uniform(self.rand_area[0], self.rand_area[1])
             ny = random.uniform(self.rand_area[2], self.rand_area[3])
