@@ -3,15 +3,11 @@ import rclpy
 from rclpy.node import Node
 import numpy as np
 import time
-
-# ROS 2 message imports
 from nav_msgs.msg import OccupancyGrid, Path
 from geometry_msgs.msg import PoseStamped, Twist, Point
-from visualization_msgs.msg import Marker #To display a marker point on RVIZ
+from visualization_msgs.msg import Marker 
 from rclpy.qos import QoSProfile, DurabilityPolicy, HistoryPolicy, ReliabilityPolicy
 from std_msgs.msg import Empty, Float64MultiArray
-
-# Corrected import: Remove the dot for ROS 2 standalone execution
 import rrt 
 from rrt import RRT, collision_3d
 
@@ -22,9 +18,8 @@ class RRTPlannerNode(Node):
     def __init__(self):
         super().__init__('rrt_planner_node')
         
-
         self.robot_started = False
-        self.planning_timer = None # On stocke le timer pour pouvoir l'arrêter
+        self.planning_timer = None 
         self.start_sub = self.create_subscription(Empty, '/start_robot', self.start_callback, 10)
         self.get_logger().info("System ready. Waiting for map, then use '/start_robot' to move.")
         
@@ -33,14 +28,14 @@ class RRTPlannerNode(Node):
         tree_qos = QoSProfile(
             history=HistoryPolicy.KEEP_LAST,
             depth=1,
-            durability=DurabilityPolicy.TRANSIENT_LOCAL # Keeps the tree in memory for RViz
+            durability=DurabilityPolicy.TRANSIENT_LOCAL
         )
 
         marker_qos = QoSProfile(
             history=HistoryPolicy.KEEP_LAST,
             depth=10,
             reliability=ReliabilityPolicy.RELIABLE,
-            durability=DurabilityPolicy.TRANSIENT_LOCAL # Keeps the tree in memory for RViz
+            durability=DurabilityPolicy.TRANSIENT_LOCAL 
         )
 
         # Parameters
@@ -49,7 +44,7 @@ class RRTPlannerNode(Node):
         self.map_data = None
         self.latest_goal = None
         self.current_path = [] 
-        self.latest_path = None  # To store the path for publishing
+        self.latest_path = None  
         self.robot_pose = {'x': 0.0, 'y': 0.0, 'yaw': 0.0}
 
         # Movement Constraints
@@ -88,20 +83,19 @@ class RRTPlannerNode(Node):
             self.publish_goal_marker(self.latest_goal) #Goal marker
 
     def follow_path(self):
-        # 1. Safety Check: Stop if not started or path is empty
         if not self.robot_started or not self.current_path:
             self.stop_robot()
             return
 
-        # Target waypoint 3D
+        # Target waypoint
         target_x, target_y, target_z = self.current_path[0]
         
-        # 1. Pilotage de l'altitude (Drone)
+        # ALtitude
         z_msg = Float64MultiArray()
         z_msg.data = [float(target_z)]
         self.drone_pos_pub.publish(z_msg)
 
-        # 2. Pilotage Terrestre (Base)
+        # Planear
         robot_map_x = self.robot_pose['x'] + 0.5 
         robot_map_y = self.robot_pose['y'] + 5.0 
 
@@ -112,7 +106,7 @@ class RRTPlannerNode(Node):
         angle_to_target = math.atan2(dy, dx)
         angle_diff = math.atan2(math.sin(angle_to_target - self.robot_pose['yaw']), 
                                 math.cos(angle_to_target - self.robot_pose['yaw']))
-        # 4. STEP-BY-STEP DEBUG LOGGING (Updated to show map coordinates)
+        # Debug
         self.get_logger().info(
             f"TARGET (map): [{target_x:.2f}, {target_y:.2f}] | "
             f"POSE (map): [{robot_map_x:.2f}, {robot_map_y:.2f}] | "
@@ -120,13 +114,12 @@ class RRTPlannerNode(Node):
             throttle_duration_sec=0.5
         )
 
-        # 5. Check if waypoint is reached
         if dist < 0.3: #Condition te say that we reached the point
             self.get_logger().info(f"REACHED WAYPOINT: [{target_x:.2f}, {target_y:.2f}]")
             self.current_path.pop(0)
             return
 
-        # 6. Movement Logic (Remaining the same)
+        # Movement Logic 
         msg = Twist()
         if abs(angle_diff) > 0.2: 
             msg.angular.z = 0.4 if angle_diff > 0 else -0.4
@@ -154,7 +147,7 @@ class RRTPlannerNode(Node):
         self.robot_pose['x'] = msg.pose.pose.position.x
         self.robot_pose['y'] = msg.pose.pose.position.y
         
-        # Orientation (Quaternion to Euler Yaw)
+        # Orientation 
         q = msg.pose.pose.orientation
         siny_cosp = 2 * (q.w * q.z + q.x * q.y)
         cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z)
@@ -177,7 +170,7 @@ class RRTPlannerNode(Node):
             self.get_logger().error("RRT* failed to initialize.")
             return
 
-        path, planner = result # Unpack the tuple
+        path, planner = result 
     
         if path:
             self.current_path = path
@@ -205,15 +198,14 @@ class RRTPlannerNode(Node):
         marker.header.stamp = self.get_clock().now().to_msg()
         marker.ns = "rrt_tree"
         marker.id = 1
-        marker.type = Marker.LINE_LIST # Each pair of points forms a line segment
+        marker.type = Marker.LINE_LIST 
         marker.action = Marker.ADD
     
-        # Visual style: Thin blue lines
-        marker.scale.x = 0.02 # Line width
+        marker.scale.x = 0.02 
         marker.color.r = 0.0
         marker.color.g = 0.5
         marker.color.b = 1.0
-        marker.color.a = 0.6 # Slightly transparent
+        marker.color.a = 0.6 
     
         for node in nodes:
             if len(node.parent_x) > 1:
@@ -236,8 +228,8 @@ class RRTPlannerNode(Node):
     def run_simulation(self):
         """ Main logic to call the RRT algorithm. """
         rand_area = [0.1, 9.8, 0.1, 9.9, 0.0, 3.0] 
-        start = [0.5, 5.0, 0.0]  
-        goal = [9.5, 7.5, 0.0]   
+        start = [0.5, 5.0, 0.4]  
+        goal = [1.5, 5.5, 0.4]   #Change here 
         
         #Marker
         self.latest_goal = goal    
@@ -297,21 +289,19 @@ class RRTPlannerNode(Node):
         marker.type = Marker.SPHERE
         marker.action = Marker.ADD
         
-        # Goal coordinates
         marker.pose.position.x = float(goal[0])
         marker.pose.position.y = float(goal[1])
         marker.pose.position.z = float(goal[2])
         
-        # Size of the sphere (0.3m)
+        # Size
         marker.scale.x = 0.3
         marker.scale.y = 0.3
         marker.scale.z = 0.3
-        
-        # Color: Bright Red
+        # Color
         marker.color.r = 1.0
         marker.color.g = 0.0
         marker.color.b = 0.0
-        marker.color.a = 1.0 # Fully opaque
+        marker.color.a = 1.0 
         
         self.marker_pub.publish(marker)
     

@@ -19,7 +19,7 @@ class Nodes:
     def __init__(self, x, y, z):
         self.x = x
         self.y = y
-        self.z = z # Ajout de l'altitude
+        self.z = z
         self.parent_x = []
         self.parent_y = []
         self.parent_z = []
@@ -32,8 +32,7 @@ def collision_3d(x1, y1, z1, x2, y2, z2, map_data):
     Checks for collisions. If altitude Z > 1.0m, we assume we fly over 
     the shelves (2D obstacles).
     """
-    # Si le point de départ et d'arrivée sont en hauteur, pas de collision
-    # On considère que les obstacles (étagères) font moins de 1.0m
+    # If starting and finishing point are in altitude
     if z1 > 1.0 and z2 > 1.0:
         return False 
 
@@ -64,12 +63,12 @@ def collision_3d(x1, y1, z1, x2, y2, z2, map_data):
                         return True
     return False
     
-# check the  collision with obstacle and trim
+# check the  collision with obstacle
 def check_collision_3d(x1, y1, z1, x2, y2, z2, map_data, goal, step_size):
     """
     Calculates the new point position in 3D and checks for obstacles.
     """
-    # Calcul de la distance et des angles (polaire + azimut)
+    # Calcultaion
     dx = x1 - x2
     dy = y1 - y2
     dz = z1 - z2
@@ -78,12 +77,12 @@ def check_collision_3d(x1, y1, z1, x2, y2, z2, map_data, goal, step_size):
     if dist_total == 0:
         return x2, y2, z2, False, False
 
-    # Projection du pas (step_size) sur les axes
+    # Step size
     tx = x2 + (dx / dist_total) * step_size
     ty = y2 + (dy / dist_total) * step_size
     tz = z2 + (dz / dist_total) * step_size
 
-    # Vérification des limites de la carte
+    # Limitations of the map
     res = map_data.info.resolution
     origin_x = map_data.info.origin.position.x
     origin_y = map_data.info.origin.position.y
@@ -93,49 +92,48 @@ def check_collision_3d(x1, y1, z1, x2, y2, z2, map_data, goal, step_size):
     if grid_x < 0 or grid_x >= map_data.info.width or grid_y < 0 or grid_y >= map_data.info.height:
         return tx, ty, tz, False, False
 
-    # English comment: Check collision using the 3D logic (Z > 1.0m clears obstacles)
+    # Check collision
     nodeCon = not collision_3d(x2, y2, z2, tx, ty, tz, map_data)
-    # Vérification si le but est directement accessible depuis ce nouveau point
+    # Check if we can access the goal from this point
     directCon = not collision_3d(tx, ty, tz, goal[0], goal[1], goal[2], map_data)
 
     return tx, ty, tz, directCon, nodeCon
 
 
-
-
-
-Z_PENALTY = 5.0 
+Z_PENALTY = 5.0 #To stay on the ground in the majority 
 class RRT:
     def __init__(self, start, goal, rand_area, step_size, map_data):
-        self.start = start # [x, y, z]
-        self.goal = goal   # [x, y, z]
-        self.rand_area = rand_area # [min_x, max_x, min_y, max_y, min_z, max_z]
+        self.start = start 
+        self.goal = goal 
+        self.rand_area = rand_area 
         self.step_size = step_size
         self.map_data = map_data
         self.node_list = [Nodes(start[0], start[1], start[2])]
 
-        # return dist and angle b/w new point and nearest node
+        
     def dist_and_angle_3d(self,x1, y1, z1, x2, y2, z2):
         dist = math.sqrt((x1-x2)**2 + (y1-y2)**2 + (z1-z2)**2)
-        theta = math.atan2(y2-y1, x2-x1) # Angle plan horizontal
+        theta = math.atan2(y2-y1, x2-x1) 
         return dist, theta
 
-    # return the neaerst node index
     def get_nearest_node_index(self, nx, ny, nz):
         """
         Finds the nearest node in 3D, applying a penalty to Z to favor ground nodes.
         """
-        # Utilisation de la pénalité Z pour que le robot préfère rester au sol
+        
         dlist = [
             (node.x - nx)**2 + (node.y - ny)**2 + ((node.z - nz)**2 * Z_PENALTY) 
             for node in self.node_list
         ]
         return dlist.index(min(dlist))
 
+    self.collision_count = 0
+    self.total_samples = 0
     def planning(self):
-        for i in range(50000):
-            # English comment: 70% of the time, try to stay on the ground (Z=0)
+        for i in range(5000):
+            # 70% of the time, try to stay on the ground
             # This forces the robot to look for a 2D path first
+            self.total_samples += 1
             if random.random() < 0.7:
                 nz = 0.0
             else:
@@ -143,9 +141,7 @@ class RRT:
                 
             nx = random.uniform(self.rand_area[0], self.rand_area[1])
             ny = random.uniform(self.rand_area[2], self.rand_area[3])
-
-            # English comment: Distance calculation with Z penalty
-            # The robot will prefer a node further away on the ground than a closer one in the air
+            
             dlist = [
                 (n.x - nx)**2 + (n.y - ny)**2 + ((n.z - nz)**2 * Z_PENALTY) 
                 for n in self.node_list
