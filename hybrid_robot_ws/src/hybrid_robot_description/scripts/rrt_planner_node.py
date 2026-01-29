@@ -43,7 +43,7 @@ class RRTPlannerNode(Node):
         )
 
         # Parameters
-        self.step_size = 0.1  # Planning step in meters
+        self.step_size = 0.5  # Planning step in meters
         self.control_timer = None 
         self.map_data = None
         self.current_path = [] 
