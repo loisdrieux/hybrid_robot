@@ -1,0 +1,283 @@
+<?xml version="1.0" ?>
+<sdf version="1.7">
+  <world name="hybrid_forest_world">
+
+    <include><uri>model://sun</uri></include>
+
+    <model name="floor">
+      <static>true</static>
+      <link name="link">
+        <pose>7.5 5 0 0 0 0</pose>
+        <visual name="visual"><geometry><box><size>15 10 0.01</size></box></geometry></visual>
+      </link>
+    </model>
+
+    <model name="north_wall">
+      <static>true</static>
+      <link name="link">
+        <pose>7.5 10 1.5 0 0 0</pose>
+        <collision name="collision"><geometry><box><size>15 0.2 3.0</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>15 0.2 3.0</size></box></geometry></visual>
+      </link>
+    </model>
+
+    <model name="south_wall">
+      <static>true</static>
+      <link name="link">
+        <pose>7.5 0 1.5 0 0 0</pose>
+        <collision name="collision"><geometry><box><size>15 0.2 3.0</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>15 0.2 3.0</size></box></geometry></visual>
+      </link>
+    </model>
+
+    <model name="east_wall">
+      <static>true</static>
+      <link name="link">
+        <pose>15 5 1.5 0 0 0</pose>
+        <collision name="collision"><geometry><box><size>0.2 10 3.0</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.2 10 3.0</size></box></geometry></visual>
+      </link>
+    </model>
+
+    <model name="west_wall_south">
+      <static>true</static>
+      <link name="link">
+        <pose>0 2 1.5 0 0 0</pose>
+        <collision name="collision"><geometry><box><size>0.2 4 3.0</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.2 4 3.0</size></box></geometry></visual>
+      </link>
+    </model>
+
+    <model name="west_wall_north">
+      <static>true</static>
+      <link name="link">
+        <pose>0 8 1.5 0 0 0</pose>
+        <collision name="collision"><geometry><box><size>0.2 4 3.0</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.2 4 3.0</size></box></geometry></visual>
+      </link>
+    </model>
+
+    <model name="partial_central_wall">
+      <static>true</static>
+      <link name="link">
+        <pose>11.25 3.5 1.5 0 0 0</pose>
+        <collision name="collision">
+          <geometry><box><size>0.5 7.0 3.0</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.5 7.0 3.0</size></box></geometry>
+          <material><ambient>0.2 0.2 0.2 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name='forest_block_1'>
+      <static>true</static>
+      <link name='link'>
+        <pose>1.25 1.75 1.5 0 0 0</pose> <collision name='collision'>
+          <geometry><box><size>0.5 0.5 3.0</size></box></geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry><box><size>0.5 0.5 2.0</size></box></geometry>
+          <material><ambient>0.1 0.1 0.1 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name='forest_block_1'>
+      <static>true</static>
+      <link name='link'>
+        <pose>1.25 1.25 1.5 0 0 0</pose> <collision name='collision'>
+          <geometry><box><size>0.5 0.5 3.0</size></box></geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry><box><size>0.5 0.5 2.0</size></box></geometry>
+          <material><ambient>0.1 0.1 0.1 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name='forest_block_2'>
+      <static>true</static>
+      <link name='link'>
+        <pose>2.75 4.75 1.5 0 0 0</pose> <collision name='collision'>
+          <geometry><box><size>0.5 0.5 3.0</size></box></geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry><box><size>0.5 0.5 2.0</size></box></geometry>
+          <material><ambient>0.1 0.1 0.1 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name='forest_block_3'>
+      <static>true</static>
+      <link name='link'>
+        <pose>3.25 7.75 1.5 0 0 0</pose> <collision name='collision'>
+          <geometry><box><size>0.5 0.5 3.0</size></box></geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry><box><size>0.5 0.5 2.0</size></box></geometry>
+          <material><ambient>0.1 0.1 0.1 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name='forest_block_4'>
+      <static>true</static>
+      <link name='link'>
+        <pose>4.25 6.25 1.5 0 0 0</pose> <collision name='collision'>
+          <geometry><box><size>0.5 0.5 3.0</size></box></geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry><box><size>0.5 0.5 2.0</size></box></geometry>
+          <material><ambient>0.1 0.1 0.1 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name='forest_block_5'>
+      <static>true</static>
+      <link name='link'>
+        <pose>3.75 3.25 1.5 0 0 0</pose> <collision name='collision'>
+          <geometry><box><size>0.5 0.5 3.0</size></box></geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry><box><size>0.5 0.5 2.0</size></box></geometry>
+          <material><ambient>0.1 0.1 0.1 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name='forest_block_6'>
+      <static>true</static>
+      <link name='link'>
+        <pose>5.75 8.75 1.5 0 0 0</pose> <collision name='collision'>
+          <geometry><box><size>0.5 0.5 3.0</size></box></geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry><box><size>0.5 0.5 2.0</size></box></geometry>
+          <material><ambient>0.1 0.1 0.1 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name='forest_block_7'>
+      <static>true</static>
+      <link name='link'>
+        <pose>6.25 1.75 1.5 0 0 0</pose> <collision name='collision'>
+          <geometry><box><size>0.5 0.5 3.0</size></box></geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry><box><size>0.5 0.5 2.0</size></box></geometry>
+          <material><ambient>0.1 0.1 0.1 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name='forest_block_8'>
+      <static>true</static>
+      <link name='link'>
+        <pose>7.75 7.25 1.5 0 0 0</pose> <collision name='collision'>
+          <geometry><box><size>0.5 0.5 3.0</size></box></geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry><box><size>0.5 0.5 2.0</size></box></geometry>
+          <material><ambient>0.1 0.1 0.1 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name='forest_block_9'>
+      <static>true</static>
+      <link name='link'>
+        <pose>7.25 4.25 1.5 0 0 0</pose> <collision name='collision'>
+          <geometry><box><size>0.5 0.5 3.0</size></box></geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry><box><size>0.5 0.5 2.0</size></box></geometry>
+          <material><ambient>0.1 0.1 0.1 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name='forest_block_10'>
+      <static>true</static>
+      <link name='link'>
+        <pose>8.75 2.25 1.5 0 0 0</pose> <collision name='collision'>
+          <geometry><box><size>0.5 0.5 3.0</size></box></geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry><box><size>0.5 0.5 2.0</size></box></geometry>
+          <material><ambient>0.1 0.1 0.1 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name='forest_block_11'>
+      <static>true</static>
+      <link name='link'>
+        <pose>9.75 5.75 1.5 0 0 0</pose> <collision name='collision'>
+          <geometry><box><size>0.5 0.5 3.0</size></box></geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry><box><size>0.5 0.5 2.0</size></box></geometry>
+          <material><ambient>0.1 0.1 0.1 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name='forest_block_12'>
+      <static>true</static>
+      <link name='link'>
+        <pose>12.25 5.25 1.5 0 0 0</pose> <collision name='collision'>
+          <geometry><box><size>0.5 0.5 3.0</size></box></geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry><box><size>0.5 0.5 2.0</size></box></geometry>
+          <material><ambient>0.1 0.1 0.1 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name='forest_block_13'>
+      <static>true</static>
+      <link name='link'>
+        <pose>12.75 1.25 1.5 0 0 0</pose> <collision name='collision'>
+          <geometry><box><size>0.5 0.5 3.0</size></box></geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry><box><size>0.5 0.5 2.0</size></box></geometry>
+          <material><ambient>0.1 0.1 0.1 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name='forest_block_14'>
+      <static>true</static>
+      <link name='link'>
+        <pose>13.25 8.75 1.5 0 0 0</pose> <collision name='collision'>
+          <geometry><box><size>0.5 0.5 3.0</size></box></geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry><box><size>0.5 0.5 2.0</size></box></geometry>
+          <material><ambient>0.1 0.1 0.1 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name='forest_block_15'>
+      <static>true</static>
+      <link name='link'>
+        <pose>14.25 4.25 1.5 0 0 0</pose> <collision name='collision'>
+          <geometry><box><size>0.5 0.5 3.0</size></box></geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry><box><size>0.5 0.5 2.0</size></box></geometry>
+          <material><ambient>0.1 0.1 0.1 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    </world>
+</sdf>
