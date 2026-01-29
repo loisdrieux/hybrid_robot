@@ -1,7 +1,7 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, TimerAction, ExecuteProcess
+from launch.actions import IncludeLaunchDescription, TimerAction, ExecuteProcess, DeclareLaunchArgument
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
@@ -11,11 +11,24 @@ def generate_launch_description():
     pkg_desc = get_package_share_directory('hybrid_robot_description')
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
     
-    # Parámetros globales
-    use_sim_time = LaunchConfiguration('use_sim_time', default='true')
-    world_path = os.path.join(pkg_desc, 'worlds', 'hybrid_map.world')
-    map_yaml_path = os.path.join(pkg_desc, 'map', 'storage_map.yaml') 
     
+
+    #Choice of the map
+    declare_map_name_arg = DeclareLaunchArgument(
+        'map_name',
+        default_value='storage_map',
+        description='Base name of the map and world files'
+    )
+    map_name = LaunchConfiguration('map_name')
+    use_sim_time = LaunchConfiguration('use_sim_time', default='true')
+    world_path = PathJoinSubstitution([
+        pkg_desc, 'worlds', [map_name, '.world']
+    ])
+    
+    map_yaml_path = PathJoinSubstitution([
+        pkg_desc, 'map', [map_name, '.yaml']
+    ])
+
     # Cargar el archivo XACRO del robot
     robot_description = {'robot_description': Command([
         PathJoinSubstitution([FindExecutable(name='xacro')]),
@@ -151,19 +164,13 @@ def generate_launch_description():
     
 
     return LaunchDescription([
-        # Orden lógico de ejecución
+        declare_map_name_arg,
         gazebo_launch,
         node_robot_state_publisher,
         spawn_entity,
-        
-        # Carga automática de controladores
         load_joint_state_broadcaster,
         load_diff_drive_controller,
-        
-        # Mapa y TFs
         rrt_planner_node,
         launch_map_logic,
-
-        # Visualización
         launch_rviz,
     ])

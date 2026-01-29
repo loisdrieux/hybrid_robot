@@ -8,7 +8,7 @@ import time
 from nav_msgs.msg import OccupancyGrid, Path
 from geometry_msgs.msg import PoseStamped, Twist, Point
 from visualization_msgs.msg import Marker #To display a marker point on RVIZ
-from rclpy.qos import QoSProfile, DurabilityPolicy, HistoryPolicy
+from rclpy.qos import QoSProfile, DurabilityPolicy, HistoryPolicy, ReliabilityPolicy
 from std_msgs.msg import Empty
 
 # Corrected import: Remove the dot for ROS 2 standalone execution
@@ -24,8 +24,7 @@ class RRTPlannerNode(Node):
         
 
         self.robot_started = False
-        self.planning_timer = None # On stocke le timer pour pouvoir l'arrêter
-        self.start_sub = self.create_subscription(Empty, '/start_robot', self.start_callback, 10)
+        self.planning_timer = None 
         self.get_logger().info("System ready. Waiting for map, then use '/start_robot' to move.")
         
         map_qos = QoSProfile(depth=1)
@@ -38,19 +37,18 @@ class RRTPlannerNode(Node):
 
         marker_qos = QoSProfile(
             history=HistoryPolicy.KEEP_LAST,
-            depth=1,
-            durability=DurabilityPolicy.TRANSIENT_LOCAL # Keeps the tree in memory for RViz
+            depth=10,
+            reliability=ReliabilityPolicy.RELIABLE,
+            durability=DurabilityPolicy.TRANSIENT_LOCAL 
         )
 
-        # --- Parameters ---
+        # Parameters
         self.step_size = 0.1  # Planning step in meters
         self.control_timer = None 
         self.map_data = None
         self.current_path = [] 
-        self.latest_path = None  # To store the path for persistent publishing
-        self.marker_pub = self.create_publisher(Marker, 'goal_marker', marker_qos)
-        self.tree_pub = self.create_publisher(Marker, '/rrt_tree', tree_qos)
-        # Robot State
+        self.latest_path = None 
+        self.latest_goal = None
         self.robot_pose = {'x': 0.0, 'y': 0.0, 'yaw': 0.0}
 
         # Movement Constraints
@@ -58,28 +56,24 @@ class RRTPlannerNode(Node):
         self.linear_speed = 0.15
         self.angular_speed = 0.4
 
-        # New Publisher and Subscriber
-        self.cmd_vel_pub = self.create_publisher(Twist, '/diff_drive_controller/cmd_vel_unstamped', 10)
-        self.odom_sub = self.create_subscription(Odometry, '/diff_drive_controller/odom', self.odom_callback, 10)
-        
-        # --- Subscribers ---
+        # Timer 
+        self.timer = self.create_timer(1.0, self.timer_callback)
+        self.marker_timer = self.create_timer(1.0, self.timer_callback)
 
-
+        # Subscribers
+        self.start_sub = self.create_subscription(Empty, '/start_robot', self.start_callback, 10)
         self.map_sub = self.create_subscription(
             OccupancyGrid,
             '/map',
             self.map_callback,
             map_qos) 
+        self.odom_sub = self.create_subscription(Odometry, '/diff_drive_controller/odom', self.odom_callback, 10)
         
-
-        # --- Publishers ---
-        # Output the path to be visualized in RViz
+        # Publishers
         self.path_pub = self.create_publisher(Path, '/rrt_path', 10)
-        self.marker_pub = self.create_publisher(Marker, 'goal_marker', 10)
-        # --- Timer ---
-        # Periodically republish the path to ensure RViz receives it
-        self.timer = self.create_timer(1.0, self.timer_callback)
-        #self.timer = self.create_timer(0.1, self.follow_path)
+        self.cmd_vel_pub = self.create_publisher(Twist, '/diff_drive_controller/cmd_vel_unstamped', 10)
+        self.marker_pub = self.create_publisher(Marker, 'goal_marker', marker_qos)
+        self.tree_pub = self.create_publisher(Marker, '/rrt_tree', tree_qos)
         
         self.get_logger().info("RRT* Node started. Persistent publishing enabled.")
 
@@ -91,35 +85,31 @@ class RRTPlannerNode(Node):
     def timer_callback(self):
         """ Periodically publishes the saved path. """
         if self.latest_path is not None:
-            self.publish_path(self.latest_path)
+            self.publish_path(self.latest_path) #Path
+        if self.latest_goal is not None:
+            self.publish_goal_marker(self.latest_goal) #Goal marker
 
     def follow_path(self):
-        # 1. Safety Check: Stop if not started or path is empty
         if not self.robot_started or not self.current_path:
             self.stop_robot()
             return
 
-        # 2. Extract current target waypoint (already in 'map' frame from RRT)
         target_x, target_y = self.current_path[0]
     
-        # --- CRITICAL FIX: Use the map-frame coordinates ---
-        # We apply the offset from your static_tf_map_odom in the launch file
         robot_map_x = self.robot_pose['x'] + 0.5 
         robot_map_y = self.robot_pose['y'] + 5.0 
 
-        # 3. Calculate distance and angle using the CORRECTED coordinates
-        # Use robot_map_x/y instead of self.robot_pose['x']
+        #Distance
         dx = target_x - robot_map_x
         dy = target_y - robot_map_y
         dist = math.sqrt(dx**2 + dy**2)
     
-        # Calculate absolute angle to target
+        # Angle
         angle_to_target = math.atan2(dy, dx)
-        # The yaw from odom is usually absolute, so it works in map frame too
         angle_diff = math.atan2(math.sin(angle_to_target - self.robot_pose['yaw']), 
                         math.cos(angle_to_target - self.robot_pose['yaw']))
 
-        # 4. STEP-BY-STEP DEBUG LOGGING (Updated to show map coordinates)
+        # Debug
         self.get_logger().info(
             f"TARGET (map): [{target_x:.2f}, {target_y:.2f}] | "
             f"POSE (map): [{robot_map_x:.2f}, {robot_map_y:.2f}] | "
@@ -127,13 +117,11 @@ class RRTPlannerNode(Node):
             throttle_duration_sec=0.5
         )
 
-        # 5. Check if waypoint is reached
         if dist < 0.3: #Condition te say that we reached the point
             self.get_logger().info(f"REACHED WAYPOINT: [{target_x:.2f}, {target_y:.2f}]")
             self.current_path.pop(0)
             return
 
-        # 6. Movement Logic (Remaining the same)
         msg = Twist()
         if abs(angle_diff) > 0.2: 
             msg.angular.z = 0.4 if angle_diff > 0 else -0.4
@@ -168,7 +156,6 @@ class RRTPlannerNode(Node):
         self.robot_pose['yaw'] = math.atan2(siny_cosp, cosy_cosp)
 
     def run_planning_timer_callback(self):
-        # 1. Cancel the timer to prevent loops
         if self.planning_timer:
             self.planning_timer.cancel()
             self.destroy_timer(self.planning_timer)
@@ -176,21 +163,18 @@ class RRTPlannerNode(Node):
 
         self.get_logger().info("Running RRT* calculation...")
         
-        # 2. Extract both values from run_simulation
         result = self.run_simulation()
-        
-        # Check if run_simulation returned the expected tuple
+
         if result is None:
             self.get_logger().error("RRT* failed to initialize.")
             return
 
-        path, planner = result # Unpack the tuple
+        path, planner = result 
     
         if path:
             self.current_path = path
             self.latest_path = path
-            
-            # 3. Publish the exploration tree ONLY if planner exists
+
             if planner and hasattr(planner, 'node_list'):
                 all_nodes = planner.node_list 
                 self.publish_tree(all_nodes)
@@ -212,7 +196,7 @@ class RRTPlannerNode(Node):
         marker.header.stamp = self.get_clock().now().to_msg()
         marker.ns = "rrt_tree"
         marker.id = 1
-        marker.type = Marker.LINE_LIST # Each pair of points forms a line segment
+        marker.type = Marker.LINE_LIST 
         marker.action = Marker.ADD
     
         # Visual style: Thin blue lines
@@ -240,11 +224,12 @@ class RRTPlannerNode(Node):
     def run_simulation(self):
         """ Main logic to call the RRT algorithm. """
         
-        rand_area = [0.1, 9.8, 0.1, 9.9] 
+        rand_area = [0.1, 14.8, 0.1, 9.9] 
     
         # Use the start/goal that correspond to the visual map
         start = [0.5, 5.0]  
-        goal = [9.5, 7.5 ]   #Behind the second obstacle
+        goal = [13.5, 5.0 ] 
+        self.latest_goal = goal
         self.get_logger().info(f"Planning from {start} to {goal}...")
         start_time = time.time()
 
@@ -265,9 +250,9 @@ class RRTPlannerNode(Node):
         if path:
             self.get_logger().info(f"Path found in {end_time - start_time:.4f}s")
             self.latest_path = path  
-            self.current_path = path # Transmettre directement ici
+            self.current_path = path 
             self.get_logger().info(f"Path loaded: {len(self.current_path)} points.")
-            return path, planner # Retourner le path pour le timer callback
+            return path, planner 
         else:
             self.get_logger().warn("RRT failed to find a valid path.")
             return None, planner
@@ -284,7 +269,6 @@ class RRTPlannerNode(Node):
             pose.header.frame_id = "map"
             pose.pose.position.x = float(point[0])
             pose.pose.position.y = float(point[1])
-            # Set Z to 0.1 to ensure visibility above the floor in RViz
             pose.pose.position.z = 0.1 
             path_msg.poses.append(pose)
             
@@ -305,7 +289,7 @@ class RRTPlannerNode(Node):
         # Goal coordinates
         marker.pose.position.x = float(goal[0])
         marker.pose.position.y = float(goal[1])
-        marker.pose.position.z = 0.5 # Slightly above the floor
+        marker.pose.position.z = 0.5 
         
         # Size of the sphere (0.3m)
         marker.scale.x = 0.3
@@ -316,7 +300,7 @@ class RRTPlannerNode(Node):
         marker.color.r = 1.0
         marker.color.g = 0.0
         marker.color.b = 0.0
-        marker.color.a = 1.0 # Fully opaque
+        marker.color.a = 1.0 
         
         self.marker_pub.publish(marker)
     

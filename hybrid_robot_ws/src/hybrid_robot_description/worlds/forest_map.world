@@ -8,7 +8,11 @@
       <static>true</static>
       <link name="link">
         <pose>7.5 5 0 0 0 0</pose>
-        <visual name="visual"><geometry><box><size>15 10 0.01</size></box></geometry></visual>
+        <collision name="collision"> <geometry><box><size>15 10 0.01</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>15 10 0.01</size></box></geometry>
+        </visual>
       </link>
     </model>
 
@@ -67,19 +71,6 @@
         <visual name="visual">
           <geometry><box><size>0.5 7.0 3.0</size></box></geometry>
           <material><ambient>0.2 0.2 0.2 1</ambient></material>
-        </visual>
-      </link>
-    </model>
-
-    <model name='forest_block_1'>
-      <static>true</static>
-      <link name='link'>
-        <pose>1.25 1.75 1.5 0 0 0</pose> <collision name='collision'>
-          <geometry><box><size>0.5 0.5 3.0</size></box></geometry>
-        </collision>
-        <visual name='visual'>
-          <geometry><box><size>0.5 0.5 2.0</size></box></geometry>
-          <material><ambient>0.1 0.1 0.1 1</ambient></material>
         </visual>
       </link>
     </model>
