@@ -1,1 +1,2 @@
-/home/lois/hybrid_robot/hybrid_robot_ws/build/hybrid_robot_description/ament_cmake_environment_hooks/local_setup.dsv
+source;share/hybrid_robot_description/environment/ament_prefix_path.sh
+source;share/hybrid_robot_description/environment/path.sh

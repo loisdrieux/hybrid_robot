@@ -1,1 +1,1 @@
-/home/lois/hybrid_robot/hybrid_robot_ws/build/hybrid_robot_description/ament_cmake_environment_hooks/ament_prefix_path.dsv
+prepend-non-duplicate;AMENT_PREFIX_PATH;

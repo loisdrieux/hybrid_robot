@@ -32,7 +32,7 @@ def generate_launch_description():
     # Cargar el archivo XACRO del robot
     robot_description = {'robot_description': Command([
         PathJoinSubstitution([FindExecutable(name='xacro')]),
-        ' ', PathJoinSubstitution([pkg_desc, 'urdf', 'hybrid_terrestrial.xacro'])
+        ' ', PathJoinSubstitution([pkg_desc, 'urdf', 'hybrid_robot.xacro'])
     ])}
     
     # --- 2. LANZAMIENTO DE COMPONENTES BÁSICOS ---
@@ -56,7 +56,7 @@ def generate_launch_description():
     # c) Spawn del robot en Gazebo
     spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
                         arguments=['-topic', 'robot_description',
-                                   '-entity', 'hybrid_robot_terrestrial',
+                                   '-entity', 'hybrid_robot',
                                    '-x', '0.5', '-y', '5.0', '-z', '0.05', # Ajustado a 0.05 para evitar enterrarse
                                    '--ros-args', '--param', 'use_sim_time:=true'],
                         output='screen')
@@ -76,6 +76,13 @@ def generate_launch_description():
         package="controller_manager",
         executable="spawner",
         arguments=["diff_drive_controller"],
+        output="screen",
+    )
+
+    load_lift_controller = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["lift_controller"],
         output="screen",
     )
 
@@ -124,7 +131,7 @@ def generate_launch_description():
         arguments=['0', '0', '0', '0', '0', '0', 'world', 'map', '--ros-args', '-p', 'use_sim_time:=true']
     )
 
-    # Liaison entre la carte et l'odométrie
+   
     static_tf_map_odom = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
@@ -170,6 +177,7 @@ def generate_launch_description():
         spawn_entity,
         load_joint_state_broadcaster,
         load_diff_drive_controller,
+        load_lift_controller,
         rrt_planner_node,
         launch_map_logic,
         launch_rviz,
