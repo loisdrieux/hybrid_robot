@@ -45,7 +45,7 @@ def collision(x1, y1, x2, y2, map_data):
     # --- SAFETY MARGIN CONFIGURATION ---
     # Increase this value to move the robot further from walls
     # 6 pixels * 0.05m = 0.30m of safety margin
-    safety_margin_px = 3
+    safety_margin_px = 10
 
     for i in range(test_steps):
         curr_x = x1 + i * (res / 2.0) * np.cos(theta)
@@ -129,7 +129,7 @@ class RRT:
 
     def planning(self):
         # Implementation of the RRT loop using meters
-        for i in range(5000): # max iterations
+        for i in range(10000): # max iterations
             # Sample a random point within the terrestrial bounds
             nx = random.uniform(self.rand_area[0], self.rand_area[1])
             ny = random.uniform(self.rand_area[2], self.rand_area[3])

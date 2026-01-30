@@ -43,7 +43,7 @@ class RRTPlannerNode(Node):
         )
 
         # Parameters
-        self.step_size = 0.1  # Planning step in meters
+        self.step_size = 0.5  # Planning step in meters
         self.control_timer = None 
         self.map_data = None
         self.current_path = [] 
@@ -67,11 +67,11 @@ class RRTPlannerNode(Node):
             '/map',
             self.map_callback,
             map_qos) 
-        self.odom_sub = self.create_subscription(Odometry, '/diff_drive_controller/odom', self.odom_callback, 10)
+        self.odom_sub = self.create_subscription(Odometry, 'odom_drone', self.odom_callback, 10)
         
         # Publishers
         self.path_pub = self.create_publisher(Path, '/rrt_path', 10)
-        self.cmd_vel_pub = self.create_publisher(Twist, '/diff_drive_controller/cmd_vel_unstamped', 10)
+        self.cmd_vel_pub = self.create_publisher(Twist, 'cmd_drone', 10)
         self.marker_pub = self.create_publisher(Marker, 'goal_marker', marker_qos)
         self.tree_pub = self.create_publisher(Marker, '/rrt_tree', tree_qos)
         
@@ -96,8 +96,8 @@ class RRTPlannerNode(Node):
 
         target_x, target_y = self.current_path[0]
     
-        robot_map_x = self.robot_pose['x'] + 0.5 
-        robot_map_y = self.robot_pose['y'] + 5.0 
+        robot_map_x = self.robot_pose['x']
+        robot_map_y = self.robot_pose['y']
 
         #Distance
         dx = target_x - robot_map_x
@@ -225,7 +225,7 @@ class RRTPlannerNode(Node):
         """ Main logic to call the RRT algorithm. """
         rand_area = [0.1, 14.8, 0.1, 9.9] 
         start = [0.5, 5.0]  
-        goal = [4.0, 9.0] #Goal to change
+        goal = [13.5, 5.0] #Goal to change
 
         self.latest_goal = goal
         self.get_logger().info(f"Planning from {start} to {goal}...")

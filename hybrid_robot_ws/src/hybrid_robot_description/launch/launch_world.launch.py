@@ -137,7 +137,7 @@ def generate_launch_description():
         executable='static_transform_publisher',
         name='static_tf_map_odom',
         output='screen',
-        arguments=['0.5', '5.0', '0', '0', '0', '0', 'map', 'odom'] #Mismo que el spawn en Gazebo
+        arguments=['0', '0', '0', '0', '0', '0', 'map', 'odom', '--ros-args', '-p', 'use_sim_time:=true']
     )
 
 
@@ -176,7 +176,7 @@ def generate_launch_description():
         node_robot_state_publisher,
         spawn_entity,
         load_joint_state_broadcaster,
-        load_diff_drive_controller,
+        #load_diff_drive_controller,
         load_lift_controller,
         rrt_planner_node,
         launch_map_logic,

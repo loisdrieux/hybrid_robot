@@ -4,6 +4,14 @@
     <xacro:include filename="hybrid_terrestrial.xacro" />
     <xacro:include filename="hybrid_aerial.xacro" />
 
+    <link name="base_footprint"/>
+
+    <joint name="base_footprint_joint" type="fixed">
+        <parent link="base_footprint"/>
+        <child link="world_anchor"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
     <link name="world_anchor">
         <inertial>
             <mass value="1.0"/>
@@ -68,6 +76,8 @@
     <gazebo>
         <plugin name="drone_flight_controller" filename="libgazebo_ros_planar_move.so">
             <ros>
+                <namespace>/</namespace>
+                <parameter name="use_sim_time" value="true" />
                 <remapping>cmd_vel:=cmd_drone</remapping>
                 <remapping>odom:=odom_drone</remapping>
             </ros>
@@ -75,6 +85,7 @@
             <publish_rate>50</publish_rate>
             <publish_odom>true</publish_odom>
             <publish_odom_tf>true</publish_odom_tf>
+            
             <robotBaseFrame>world_anchor</robotBaseFrame>
             <odometryFrame>odom</odometryFrame>
         </plugin>
