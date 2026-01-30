@@ -1,50 +1,43 @@
 controller_manager:
   ros__parameters:
-    # Frecuencia de actualización del controlador (en Hz)
     update_rate: 30 
-
+    
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
-    
-    # Nombre del controlador y tipo (requerido para robots diferenciales)
     diff_drive_controller:
       type: diff_drive_controller/DiffDriveController
-
-# -----------------------------------------------------
+    lift_controller:
+      type: position_controllers/JointGroupPositionController
 
 diff_drive_controller:
   ros__parameters:
-    # 1. Nombres de las articulaciones de las ruedas (DEBEN coincidir con los nombres en el XACRO)
     left_wheel_names: ['left_wheel_joint']
     right_wheel_names: ['right_wheel_joint']
-
-    # 2. Parámetros Físicos
-    # Separación entre las ruedas motrices (eje Y del robot)
     wheel_separation: 0.64
-    # Radio de las ruedas
     wheel_radius: 0.1
     
-    # 3. Parámetros de Publicación y Ventana de Velocidad
     publish_rate: 50.0
     velocity_rolling_window_size: 10
     
-    # 4. Límites de Velocidad (Recomendado para una simulación realista)
-    
-    # Límites de Velocidad Lineal (Eje X)
     linear.x.has_velocity_limits: true
-    linear.x.max_velocity: 0.5 # Velocidad lineal máxima (0.5 m/s)
+    linear.x.max_velocity: 0.5 
     linear.x.has_acceleration_limits: true
-    linear.x.max_acceleration: 2.0 # Aceleración lineal máxima
-    angular.z.max_acceleration: 3.0
+    linear.x.max_acceleration: 2.0 
 
-    # Límites de Velocidad Angular (Eje Z - Rotación)
     angular.z.has_velocity_limits: true
-    angular.z.max_velocity: 1.0 # Velocidad angular máxima (1.0 rad/s)
+    angular.z.max_velocity: 1.0 
     angular.z.has_acceleration_limits: true
-    angular.z.max_acceleration: 2.0 # Aceleración angular máxima
+    angular.z.max_acceleration: 2.0 
 
-    publish_odom_tf: true
+    publish_odom_tf: false
     odom_frame_id: odom
     base_frame_id: base_link
-
     use_stamped_vel: false
+
+lift_controller:
+  ros__parameters:
+    joints:
+      - lift_joint
+    gains:
+      lift_joint: {p: 100.0, i: 0.1, d: 5.0}
+    interface_name: position

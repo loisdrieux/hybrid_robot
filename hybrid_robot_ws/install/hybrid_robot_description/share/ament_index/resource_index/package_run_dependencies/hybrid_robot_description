@@ -1,1 +1,1 @@
-/home/lois/hybrid_robot/hybrid_robot_ws/build/hybrid_robot_description/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/hybrid_robot_description
+rclcpp;gazebo_ros;gazebo_ros2_control;ros2_control;diff_drive_controller;ament_lint_auto;ament_lint_common

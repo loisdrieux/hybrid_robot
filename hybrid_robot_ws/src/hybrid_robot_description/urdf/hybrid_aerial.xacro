@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-    <xacro:macro name="drone_assembly" params="parent_link">
+    <xacro:macro name="drone_assembly">
         <link name="drone_base_link">
             <visual>
                 <origin xyz="0 0 0.025" rpy="0 0 0" />
@@ -17,15 +17,10 @@
             </inertial>
         </link>
 
-        <joint name="drone_to_terrestrial_joint" type="fixed">
-            <parent link="${parent_link}" />
-            <child link="drone_base_link" />
-            <origin xyz="0 0 0.01" rpy="0 0 0" />
-        </joint>
-
         <xacro:macro name="prop" params="p_name x y">
             <link name="${p_name}_link">
                 <visual><geometry><cylinder radius="0.08" length="0.01"/></geometry></visual>
+                <material name="Black"><color rgba="0 0 0 1"/></material>
             </link>
             <joint name="${p_name}_joint" type="fixed">
                 <parent link="drone_base_link"/><child link="${p_name}_link"/>

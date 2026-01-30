@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<robot name="hybrid_robot_terrestrial" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot name="hybrid_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
     <xacro:property name="wheel_radius" value="0.1" />
     <xacro:property name="base_height" value="0.1" />
@@ -10,7 +10,6 @@
     <xacro:property name="wheel_separation" value="0.64" />
     <xacro:property name="caster_radius" value="0.05" />
     <xacro:property name="caster_mass" value="0.1" />
-
 
     <xacro:macro name="default_inertial" params="mass">
         <inertial>
@@ -32,7 +31,7 @@
         <xacro:default_inertial mass="${base_mass}"/>
     </link>
 
-  <xacro:macro name="wheel_link" params="prefix parent_link x_offset y_offset">
+    <xacro:macro name="wheel_link" params="prefix parent_link x_offset y_offset">
         <link name="${prefix}_wheel_link">
             <visual>
                 <origin xyz="0 0 0" rpy="1.5708 0 0" />
@@ -45,16 +44,10 @@
             </collision>
             <xacro:default_inertial mass="0.5" />
         </link>
-
         <gazebo reference="${prefix}_wheel_link">
-            <mu1 value="1.0"/>
-            <mu2 value="1.0"/>
-            <kp value="10000000.0" />
-            <kd value="1.0" />
-            <fdir1 value="1 0 0"/>
             <material>Gazebo/Black</material>
+            <mu1 value="1.0"/><mu2 value="1.0"/>
         </gazebo>
-
         <joint name="${prefix}_wheel_joint" type="continuous">
             <origin xyz="${x_offset} ${y_offset} ${wheel_radius}" rpy="0 0 0" />
             <parent link="${parent_link}" />
@@ -66,56 +59,25 @@
     <xacro:wheel_link prefix="left" parent_link="base_link" x_offset="0.25" y_offset="${wheel_separation/2}" />
     <xacro:wheel_link prefix="right" parent_link="base_link" x_offset="0.25" y_offset="-${wheel_separation/2}" />
 
-
     <link name="caster_front_link">
-        <visual>
-            <origin xyz="0 0 0" rpy="0 0 0"/>
-            <geometry><sphere radius="${caster_radius}"/></geometry>
-            <material name="Black"/>
-        </visual>
-        <collision>
-            <origin xyz="0 0 0" rpy="0 0 0"/>
-            <geometry><sphere radius="${caster_radius}"/></geometry>
-        </collision>
+        <visual><geometry><sphere radius="${caster_radius}"/></geometry><material name="Black"/></visual>
+        <collision><geometry><sphere radius="${caster_radius}"/></geometry></collision>
         <xacro:default_inertial mass="${caster_mass}"/>
     </link>
-
     <joint name="caster_front_joint" type="fixed">
         <origin xyz="${base_length/2 - caster_radius*2} 0 ${caster_radius}" rpy="0 0 0"/> 
-        <parent link="base_link" />
-        <child link="caster_front_link" />
+        <parent link="base_link" /><child link="caster_front_link" />
     </joint>
 
     <link name="caster_rear_link">
-        <visual>
-            <origin xyz="0 0 0" rpy="0 0 0"/>
-            <geometry><sphere radius="${caster_radius}"/></geometry>
-            <material name="Black"/>
-        </visual>
-        <collision>
-            <origin xyz="0 0 0" rpy="0 0 0"/>
-            <geometry><sphere radius="${caster_radius}"/></geometry>
-        </collision>
+        <visual><geometry><sphere radius="${caster_radius}"/></geometry><material name="Black"/></visual>
+        <collision><geometry><sphere radius="${caster_radius}"/></geometry></collision>
         <xacro:default_inertial mass="${caster_mass}"/>
     </link>
-
     <joint name="caster_rear_joint" type="fixed">
         <origin xyz="${-base_length/2 + caster_radius*2} 0 ${caster_radius}" rpy="0 0 0"/>
-        <parent link="base_link" />
-        <child link="caster_rear_link" />
+        <parent link="base_link" /><child link="caster_rear_link" />
     </joint>
-
-    <gazebo reference="caster_front_link">
-        <mu1 value="0.001"/>
-        <mu2 value="0.001"/>
-    </gazebo>
-
-    <gazebo reference="caster_rear_link">
-        <mu1 value="0.001"/>
-        <mu2 value="0.001"/>
-    </gazebo>
-
-<xacro:include filename="hybrid_aerial.xacro" />
 
     <link name="landing_pad">
         <visual>
@@ -135,38 +97,6 @@
         <child link="landing_pad" />
         <origin xyz="0 0 0.2" rpy="0 0 0" /> 
     </joint>
-
-    <xacro:drone_assembly parent_link="landing_pad" />
-
-    <ros2_control name="TerrestrialRobot" type="system">
-        <hardware>
-            <plugin>gazebo_ros2_control/GazeboSystem</plugin>
-        </hardware>
-
-        <joint name="left_wheel_joint">
-            <command_interface name="velocity">
-                <param name="min">-10</param>
-                <param name="max">10</param>
-            </command_interface>
-            <state_interface name="velocity"/>
-            <state_interface name="position"/>
-        </joint>
-
-        <joint name="right_wheel_joint">
-            <command_interface name="velocity">
-                <param name="min">-10</param>
-                <param name="max">10</param>
-            </command_interface>
-            <state_interface name="velocity"/>
-            <state_interface name="position"/>
-        </joint>
-    </ros2_control>
-
-    <gazebo>
-        <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
-            <parameters>$(find hybrid_robot_description)/config/terrestrial_control.yaml</parameters>
-        </plugin>
-    </gazebo>
 
     <gazebo reference="base_link">
         <material>Gazebo/Green</material>

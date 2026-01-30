@@ -1,1 +1,0 @@
-/home/lois/hybrid_robot/hybrid_robot_ws/src/hybrid_robot_description/scripts/create_octomap.py

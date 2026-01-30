@@ -67,11 +67,11 @@ class RRTPlannerNode(Node):
             '/map',
             self.map_callback,
             map_qos) 
-        self.odom_sub = self.create_subscription(Odometry, '/diff_drive_controller/odom', self.odom_callback, 10)
+        self.odom_sub = self.create_subscription(Odometry, 'odom_drone', self.odom_callback, 10)
         
         # Publishers
         self.path_pub = self.create_publisher(Path, '/rrt_path', 10)
-        self.cmd_vel_pub = self.create_publisher(Twist, '/diff_drive_controller/cmd_vel_unstamped', 10)
+        self.cmd_vel_pub = self.create_publisher(Twist, 'cmd_drone', 10)
         self.marker_pub = self.create_publisher(Marker, 'goal_marker', marker_qos)
         self.tree_pub = self.create_publisher(Marker, '/rrt_tree', tree_qos)
         
@@ -96,8 +96,8 @@ class RRTPlannerNode(Node):
 
         target_x, target_y = self.current_path[0]
     
-        robot_map_x = self.robot_pose['x'] + 0.5 
-        robot_map_y = self.robot_pose['y'] + 5.0 
+        robot_map_x = self.robot_pose['x']
+        robot_map_y = self.robot_pose['y']
 
         #Distance
         dx = target_x - robot_map_x
@@ -204,7 +204,7 @@ class RRTPlannerNode(Node):
         marker.color.r = 0.0
         marker.color.g = 0.5
         marker.color.b = 1.0
-        marker.color.a = 0.6 # Slightly transparent
+        marker.color.a = 0.6 
     
         for node in nodes:
             if len(node.parent_x) > 1:
@@ -212,7 +212,7 @@ class RRTPlannerNode(Node):
                 p1 = Point()
                 p1.x, p1.y, p1.z = float(node.x), float(node.y), 0.05
             
-                # Point 2: Its parent (the last point before current in the parent list)
+                # Point 2: Its parent 
                 p2 = Point()
                 p2.x, p2.y, p2.z = float(node.parent_x[-2]), float(node.parent_y[-2]), 0.05
             
@@ -223,17 +223,15 @@ class RRTPlannerNode(Node):
 
     def run_simulation(self):
         """ Main logic to call the RRT algorithm. """
-        
         rand_area = [0.1, 14.8, 0.1, 9.9] 
-    
-        # Use the start/goal that correspond to the visual map
         start = [0.5, 5.0]  
-        goal = [13.5, 5.0 ] 
+        goal = [13.5, 5.0] #Goal to change
+
         self.latest_goal = goal
         self.get_logger().info(f"Planning from {start} to {goal}...")
         start_time = time.time()
 
-        # Initialize the RRT algorithm class
+        # RRT
         planner = RRT(
             start=start,
             goal=goal,
@@ -242,9 +240,7 @@ class RRTPlannerNode(Node):
             map_data=self.map_data
         )
         
-        # Compute the path
-        path = planner.planning()
-        
+        path = planner.planning() 
         end_time = time.time()
 
         if path:

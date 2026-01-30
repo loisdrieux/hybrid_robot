@@ -1,0 +1,184 @@
+<?xml version="1.0" ?>
+<sdf version="1.7">
+  <world name="slalom_map_world">
+
+    <include><uri>model://sun</uri></include>
+
+    <model name="floor">
+      <static>true</static>
+      <link name="link">
+        <pose>7.5 5 0 0 0 0</pose>
+        <collision name="collision"> <geometry><box><size>15 10 0.01</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>15 10 0.01</size></box></geometry>
+        </visual>
+      </link>
+    </model>
+
+    <model name="north_wall">
+      <static>true</static>
+      <link name="link">
+        <pose>7.5 10 1.5 0 0 0</pose>
+        <collision name="collision"><geometry><box><size>15 0.2 3.0</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>15 0.2 3.0</size></box></geometry></visual>
+      </link>
+    </model>
+
+    <model name="south_wall">
+      <static>true</static>
+      <link name="link">
+        <pose>7.5 0 1.5 0 0 0</pose>
+        <collision name="collision"><geometry><box><size>15 0.2 3.0</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>15 0.2 3.0</size></box></geometry></visual>
+      </link>
+    </model>
+
+    <model name="east_wall">
+      <static>true</static>
+      <link name="link">
+        <pose>15 5 1.5 0 0 0</pose>
+        <collision name="collision"><geometry><box><size>0.2 10 3.0</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.2 10 3.0</size></box></geometry></visual>
+      </link>
+    </model>
+
+    <model name="west_wall_south">
+      <static>true</static>
+      <link name="link">
+        <pose>0 2 1.5 0 0 0</pose>
+        <collision name="collision"><geometry><box><size>0.2 4 3.0</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.2 4 3.0</size></box></geometry></visual>
+      </link>
+    </model>
+
+    <model name="west_wall_north">
+      <static>true</static>
+      <link name="link">
+        <pose>0 8 1.5 0 0 0</pose>
+        <collision name="collision"><geometry><box><size>0.2 4 3.0</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.2 4 3.0</size></box></geometry></visual>
+      </link>
+    </model>
+
+    <model name="full_wall_1">
+      <static>true</static>
+      <link name="link">
+        <pose>5.25 5 1.5 0 0 0</pose>
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.5 10 3.0</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5 10 3.0</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.2 0.2 0.8 1</ambient>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="full_wall_2">
+      <static>true</static>
+      <link name="link">
+        <pose>12.75 5 1.5 0 0 0</pose>
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.5 10 3.0</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5 10 3.0</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.2 0.2 0.8 1</ambient>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="partial_central_wall_1">
+      <static>true</static>
+      <link name="link">
+        <pose>1.75 5.75 1.5 0 0 0</pose>
+        <collision name="collision">
+          <geometry><box><size>0.5 8.5 3.0</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.5 8.5 3.0</size></box></geometry>
+          <material><ambient>0.2 0.2 0.2 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="partial_central_wall_2">
+      <static>true</static>
+      <link name="link">
+        <pose>3.75 4.25 1.5 0 0 0</pose>
+        <collision name="collision">
+          <geometry><box><size>0.5 8.5 3.0</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.5 8.5 3.0</size></box></geometry>
+          <material><ambient>0.2 0.2 0.2 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="partial_central_wall_3">
+      <static>true</static>
+      <link name="link">
+        <pose>6.75 5.75 1.5 0 0 0</pose>
+        <collision name="collision">
+          <geometry><box><size>0.5 8.5 3.0</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.5 8.5 3.0</size></box></geometry>
+          <material><ambient>0.2 0.2 0.2 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="partial_central_wall_4">
+      <static>true</static>
+      <link name="link">
+        <pose>10.25 5.75 1.5 0 0 0</pose>
+        <collision name="collision">
+          <geometry><box><size>0.5 8.5 3.0</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.5 8.5 3.0</size></box></geometry>
+          <material><ambient>0.2 0.2 0.2 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="final_block">
+      <static>true</static>
+      <link name="link">
+        <pose>14.0 3.5 1.5 0 0 0</pose>
+        <collision name="collision">
+          <geometry><box><size>2.0 7.0 3.0</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>2.0 7.0 3.0</size></box></geometry>
+          <material><ambient>0.2 0.2 0.2 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+
+    </world>
+</sdf>   
