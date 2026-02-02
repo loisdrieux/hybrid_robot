@@ -1,10 +1,5 @@
 """
-
-Path planning with Rapidly-Exploring Random Trees (RRT)
-
-author: Aakash(@nimrobotics)
-web: nimrobotics.github.io
-
+Path planning with Rapidly-Exploring Random Trees (RRT) en 3D
 """
 
 import cv2
@@ -16,67 +11,75 @@ import os
 
 class Nodes:
     """Class to store the RRT graph"""
-    def __init__(self, x,y):
+    # 2D Version: def __init__(self, x, y):
+    def __init__(self, x, y, z): # 3D Version
         self.x = x
         self.y = y
+        self.z = z # Ajout de la composante Z
         self.parent_x = []
         self.parent_y = []
+        self.parent_z = [] # Ajout du parent Z
 
 # check collision
 import numpy as np
 
-def collision(x1, y1, x2, y2, map_data):
+# 2D Version: def collision(x1, y1, x2, y2, map_data):
+def collision(x1, y1, z1, x2, y2, z2, map_data): # 3D Version
     """
-    Checks for collisions between two points (x1, y1) and (x2, y2).
-    Includes a safety buffer (inflation) around obstacles.
+    Checks for collisions between two points in 3D.
+    Si Z > hauteur_obstacle (1.5m), pas de collision.
     """
-    dist = np.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+    # Height of the obstacles
+    obstacle_height_limit = 2.2 #2m obstacles + size of the robot approximately
+    
+    # 2D Version: dist = np.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+    dist = np.sqrt((x1 - x2)**2 + (y1 - y2)**2 + (z1 - z2)**2) # 3D distance
     theta = np.arctan2(y2 - y1, x2 - x1)
+    # pitch
+    phi = np.arctan2(z2 - z1, np.sqrt((x2 - x1)**2 + (y2 - y1)**2))
     
     res = map_data.info.resolution
-    # Increase precision: check every 2.5cm instead of 5cm
     test_steps = int(dist / (res / 2.0))
     
     origin_x = map_data.info.origin.position.x
     origin_y = map_data.info.origin.position.y
     width = map_data.info.width
     height = map_data.info.height
-
-    # --- SAFETY MARGIN CONFIGURATION ---
-    # Increase this value to move the robot further from walls
-    # 6 pixels * 0.05m = 0.30m of safety margin
     safety_margin_px = 10
 
     for i in range(test_steps):
-        curr_x = x1 + i * (res / 2.0) * np.cos(theta)
-        curr_y = y1 + i * (res / 2.0) * np.sin(theta)
+        curr_x = x1 + i * (res / 2.0) * np.cos(theta) * np.cos(phi)
+        curr_y = y1 + i * (res / 2.0) * np.sin(theta) * np.cos(phi)
+        curr_z = z1 + i * (res / 2.0) * np.sin(phi)
         
+        # If we are higher than 2m, there are no obstacle
+        if curr_z > obstacle_height_limit:
+            continue
+
         gx = int((curr_x - origin_x) / res)
         gy = int((curr_y - origin_y) / res)
         
-        # Check current pixel and neighbors within the safety margin
         for dx in range(-safety_margin_px, safety_margin_px + 1):
             for dy in range(-safety_margin_px, safety_margin_px + 1):
                 nx, ny = gx + dx, gy + dy
                 if 0 <= nx < width and 0 <= ny < height:
                     index = ny * width + nx
-                    # Obstacle detected if value > 50 or unknown (-1)
                     if map_data.data[index] > 50 or map_data.data[index] == -1:
                         return True
     return False
     
-# check the  collision with obstacle and trim
-def check_collision(x1, y1, x2, y2, map_data, end_goal, step_size): # Add step_size here
+# 2D Version: def check_collision(x1, y1, x2, y2, map_data, end_goal, step_size):
+def check_collision(x1, y1, z1, x2, y2, z2, map_data, end_goal, step_size): # 3D Version
     """
-    Validates a new node and its connections.
+    Validates a new node and its connections in 3D.
     """
-    _, theta = dist_and_angle(x2, y2, x1, y1)
+    # 2D Version: dist, theta = dist_and_angle(x2, y2, x1, y1)
+    dist, theta, phi = dist_and_angle_3d(x2, y2, z2, x1, y1, z1) # 3D Version
     
-    # Use the step_size passed as argument
-    x = x2 + step_size * np.cos(theta)
-    y = y2 + step_size * np.sin(theta)
+    x = x2 + step_size * np.cos(theta) * np.cos(phi)
+    y = y2 + step_size * np.sin(theta) * np.cos(phi)
+    z = z2 + step_size * np.sin(phi)
 
-    # ... rest of the function remains the same ...
     res = map_data.info.resolution
     width = map_data.info.width
     origin_x = map_data.info.origin.position.x
@@ -85,139 +88,62 @@ def check_collision(x1, y1, x2, y2, map_data, end_goal, step_size): # Add step_s
     grid_x = int((x - origin_x) / res)
     grid_y = int((y - origin_y) / res)
 
-    if grid_x < 0 or grid_x >= width or grid_y < 0 or grid_y >= map_data.info.height:
-        return (x, y, False, False)
+    if grid_x < 0 or grid_x >= width or grid_y < 0 or grid_y >= map_data.info.height or z < 0 or z > 2.0:
+        return (x, y, z, False, False)
 
-    directCon = not collision(x, y, end_goal[0], end_goal[1], map_data)
-    nodeCon = not collision(x, y, x2, y2, map_data)
+    # 2D Check: directCon = not collision(x, y, end_goal[0], end_goal[1], map_data)
+    directCon = not collision(x, y, z, end_goal[0], end_goal[1], end_goal[2], map_data)
+    nodeCon = not collision(x, y, z, x2, y2, z2, map_data)
 
-    return (x, y, directCon, nodeCon)
+    return (x, y, z, directCon, nodeCon)
 
 
-# return dist and angle b/w new point and nearest node
-def dist_and_angle(x1,y1,x2,y2):
-    dist = math.sqrt( ((x1-x2)**2)+((y1-y2)**2) )
-    angle = math.atan2(y2-y1, x2-x1)
-    return(dist,angle)
-
-# return the neaerst node index
-def nearest_node(x,y):
-    temp_dist=[]
-    for i in range(len(node_list)):
-        dist,_ = dist_and_angle(x,y,node_list[i].x,node_list[i].y)
-        temp_dist.append(dist)
-    return temp_dist.index(min(temp_dist))
-
-# generate a random point in the image space
-def rnd_point(h,l):
-    new_y = random.randint(0, h)
-    new_x = random.randint(0, l)
-    return (new_x,new_y)
+# 2D Version: def dist_and_angle(x1,y1,x2,y2):
+def dist_and_angle_3d(x1, y1, z1, x2, y2, z2): # 3D Version
+    dist = math.sqrt(((x1-x2)**2) + ((y1-y2)**2) + ((z1-z2)**2))
+    theta = math.atan2(y2-y1, x2-x1) # Angle XY (Yaw)
+    phi = math.atan2(z2-z1, math.sqrt((x2-x1)**2 + (y2-y1)**2)) # Angle Z (Pitch)
+    return (dist, theta, phi)
 
 
 class RRT:
     def __init__(self, start, goal, rand_area, step_size, map_data):
-        self.start = start
-        self.goal = goal
-        self.rand_area = rand_area # [min_x, max_x, min_y, max_y]
+        self.start = start # [x, y, z]
+        self.goal = goal   # [x, y, z]
+        self.rand_area = rand_area # [min_x, max_x, min_y, max_y, min_z, max,z]
         self.step_size = step_size
         self.map_data = map_data
-        # Initialize node list with the start position
-        self.node_list = [Nodes(start[0], start[1])]
+        # Initialize node list with the start position (3D)
+        self.node_list = [Nodes(start[0], start[1], start[2])]
         self.node_list[0].parent_x = [start[0]]
         self.node_list[0].parent_y = [start[1]]
+        self.node_list[0].parent_z = [start[2]]
 
     def planning(self):
-        # Implementation of the RRT loop using meters
-        for i in range(10000): # max iterations
-            # Sample a random point within the terrestrial bounds
+        for i in range(30000): 
+            # 2D: nx = random.uniform(self.rand_area[0], self.rand_area[1])
             nx = random.uniform(self.rand_area[0], self.rand_area[1])
             ny = random.uniform(self.rand_area[2], self.rand_area[3])
+            nz = random.uniform(self.rand_area[4], self.rand_area[5])
 
-            # Find nearest node
-            dlist = [(node.x - nx)**2 + (node.y - ny)**2 for node in self.node_list]
+            # 2D Find nearest node: dlist = [(node.x - nx)**2 + (node.y - ny)**2 for node in self.node_list]
+            dlist = [(node.x - nx)**2 + (node.y - ny)**2 + (node.z - nz)**2 for node in self.node_list]
             nearest_ind = dlist.index(min(dlist))
             nearest_node = self.node_list[nearest_ind]
 
-            # Use the check_collision logic we integrated earlier
-            tx, ty, directCon, nodeCon = check_collision( nx, ny, nearest_node.x, nearest_node.y, self.map_data, self.goal, self.step_size)
+            # 3D Check Collision
+            tx, ty, tz, directCon, nodeCon = check_collision(nx, ny, nz, nearest_node.x, nearest_node.y, nearest_node.z, self.map_data, self.goal, self.step_size)
 
             if nodeCon:
-                new_node = Nodes(tx, ty)
+                new_node = Nodes(tx, ty, tz)
                 new_node.parent_x = nearest_node.parent_x + [tx]
                 new_node.parent_y = nearest_node.parent_y + [ty]
+                new_node.parent_z = nearest_node.parent_z + [tz]
                 self.node_list.append(new_node)
 
                 if directCon:
-                    # Target reached: return the path as a list of [x, y]
-                    path = [[px, py] for px, py in zip(new_node.parent_x, new_node.parent_y)]
-                    path.append([self.goal[0], self.goal[1]])
+                    # Target reached: return path as [x, y, z]
+                    path = [[px, py, pz] for px, py, pz in zip(new_node.parent_x, new_node.parent_y, new_node.parent_z)]
+                    path.append([self.goal[0], self.goal[1], self.goal[2]])
                     return path
         return None
-
-    def get_nearest_node_index(self, x, y):
-        dlist = [(node.x - x)**2 + (node.y - y)**2 for node in self.node_list]
-        return dlist.index(min(dlist))
-
-
-def draw_circle(event,x,y,flags,param):
-    global coordinates
-    if event == cv2.EVENT_LBUTTONDBLCLK:
-        cv2.circle(img2,(x,y),5,(255,0,0),-1)
-        coordinates.append(x)
-        coordinates.append(y)
-
-
-def RRTstar(img, img2, start, end, stepSize):
-    """
-    add rrt* implementation
-    """
-    pass
-
-
-
-if __name__ == '__main__':
-
-    parser = argparse.ArgumentParser(description = 'Below are the params:')
-    parser.add_argument('-p', type=str, default='world2.png',metavar='ImagePath', action='store', dest='imagePath',
-                    help='Path of the image containing mazes')
-    parser.add_argument('-s', type=int, default=10,metavar='Stepsize', action='store', dest='stepSize',
-                    help='Step-size to be used for RRT branches')
-    parser.add_argument('-start', type=int, default=[20,20], metavar='startCoord', dest='start', nargs='+',
-                    help='Starting position in the maze')
-    parser.add_argument('-stop', type=int, default=[450,250], metavar='stopCoord', dest='stop', nargs='+',
-                    help='End position in the maze')
-    parser.add_argument('-selectPoint', help='Select start and end points from figure', action='store_true')
-
-    args = parser.parse_args()
-
-    # remove previously stored data
-    try:
-      os.system("rm -rf media")
-    except:
-      print("Dir already clean")
-    os.mkdir("media")
-
-    img = cv2.imread(args.imagePath,0) # load grayscale maze image
-    img2 = cv2.imread(args.imagePath) # load colored maze image
-    start = tuple(args.start) #(20,20) # starting coordinate
-    end = tuple(args.stop) #(450,250) # target coordinate
-    stepSize = args.stepSize # stepsize for RRT
-    node_list = [0] # list to store all the node points
-
-    coordinates=[]
-    if args.selectPoint:
-        print("Select start and end points by double clicking, press 'escape' to exit")
-        cv2.namedWindow('image')
-        cv2.setMouseCallback('image',draw_circle)
-        while(1):
-            cv2.imshow('image',img2)
-            k = cv2.waitKey(20) & 0xFF
-            if k == 27:
-                break
-        # print(coordinates)
-        start=(coordinates[0],coordinates[1])
-        end=(coordinates[2],coordinates[3])
-
-    # run the RRT algorithm 
-    RRT(img, img2, start, end, stepSize)

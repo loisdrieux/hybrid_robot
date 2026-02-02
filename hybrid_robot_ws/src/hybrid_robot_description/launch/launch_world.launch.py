@@ -7,11 +7,8 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 
 def generate_launch_description():
-    # --- 1. CONFIGURACIÓN DE BASE ---
     pkg_desc = get_package_share_directory('hybrid_robot_description')
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
-    
-    
 
     #Choice of the map
     declare_map_name_arg = DeclareLaunchArgument(
@@ -34,8 +31,6 @@ def generate_launch_description():
         PathJoinSubstitution([FindExecutable(name='xacro')]),
         ' ', PathJoinSubstitution([pkg_desc, 'urdf', 'hybrid_robot.xacro'])
     ])}
-    
-    # --- 2. LANZAMIENTO DE COMPONENTES BÁSICOS ---
     
     # a) Lanzar Gazebo (Servidor y Cliente)
     gazebo_launch = IncludeLaunchDescription(
@@ -61,21 +56,12 @@ def generate_launch_description():
                                    '--ros-args', '--param', 'use_sim_time:=true'],
                         output='screen')
 
-    # --- 3. GESTIÓN DE CONTROLADORES (NUEVO) ---
 
     # d) Carga del Joint State Broadcaster (Publica estados de los joints)
     load_joint_state_broadcaster = Node(
         package="controller_manager",
         executable="spawner",
         arguments=["joint_state_broadcaster"],
-        output="screen",
-    )
-
-    # e) Carga del Diff Drive Controller (Control de movimiento terrestre)
-    load_diff_drive_controller = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["diff_drive_controller"],
         output="screen",
     )
 
@@ -168,6 +154,14 @@ def generate_launch_description():
             static_tf_map_odom
         ]
     )
+
+    test_node_navig_3D = Node(
+        package='hybrid_robot_description',
+        executable='test_sequence_node_3D.py',
+        name='test_sequence_node',
+        output='screen',
+        parameters=[{'use_sim_time': True}] 
+    )
     
 
     return LaunchDescription([
@@ -176,9 +170,9 @@ def generate_launch_description():
         node_robot_state_publisher,
         spawn_entity,
         load_joint_state_broadcaster,
-        #load_diff_drive_controller,
         load_lift_controller,
         rrt_planner_node,
         launch_map_logic,
         launch_rviz,
+        #test_node_navig_3D,
     ])
