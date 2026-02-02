@@ -155,7 +155,7 @@ def generate_launch_description():
         ]
     )
 
-    test_node = Node(
+    test_node_navig_3D = Node(
         package='hybrid_robot_description',
         executable='test_sequence_node_3D.py',
         name='test_sequence_node',
@@ -171,8 +171,8 @@ def generate_launch_description():
         spawn_entity,
         load_joint_state_broadcaster,
         load_lift_controller,
-        #rrt_planner_node,
+        rrt_planner_node,
         launch_map_logic,
         launch_rviz,
-        test_node,
+        #test_node_navig_3D,
     ])
