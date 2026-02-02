@@ -17,15 +17,15 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-
 install(
-  DIRECTORY urdf worlds map config launch scripts
+  DIRECTORY urdf worlds map config launch
   DESTINATION share/${PROJECT_NAME}
 )
 
 install(PROGRAMS
   scripts/rrt.py
   scripts/rrt_planner_node.py
+  scripts/test_sequence_node_3D.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

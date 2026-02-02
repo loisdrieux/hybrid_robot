@@ -225,7 +225,7 @@ class RRTPlannerNode(Node):
         """ Main logic to call the RRT algorithm. """
         rand_area = [0.1, 14.8, 0.1, 9.9] 
         start = [0.5, 5.0]  
-        goal = [13.5, 5.0] #Goal to change
+        goal = [2.5, 5.0] #Goal to change
 
         self.latest_goal = goal
         self.get_logger().info(f"Planning from {start} to {goal}...")
