@@ -181,13 +181,13 @@
         <collision name='collision'>
           <geometry>
             <box>
-              <size>1.0 4.0 1.0</size> </box>
+              <size>1.0 4.0 2.0</size> </box>
           </geometry>
         </collision>
         <visual name='visual'>
           <geometry>
             <box>
-              <size>1.0 4.0 1.0</size>
+              <size>1.0 4.0 2.0</size>
             </box>
           </geometry>
           <material>
@@ -203,13 +203,13 @@
         <collision name='collision'>
           <geometry>
             <box>
-              <size>1.0 4.0 1.0</size> </box>
+              <size>1.0 4.0 2.0</size> </box>
           </geometry>
         </collision>
         <visual name='visual'>
           <geometry>
             <box>
-              <size>1.0 4.0 1.0</size>
+              <size>1.0 4.0 2.0</size>
             </box>
           </geometry>
           <material>
@@ -226,14 +226,14 @@
         <collision name="collision">
           <geometry>
             <box>
-              <size>0.5 10 3.0</size>
+              <size>0.5 10 2.0</size>
             </box>
           </geometry>
         </collision>
         <visual name="visual">
           <geometry>
             <box>
-              <size>0.5 10 3.0</size>
+              <size>0.5 10 2.0</size>
             </box>
           </geometry>
           <material>

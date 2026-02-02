@@ -14,6 +14,7 @@ from rclpy.qos import QoSProfile, DurabilityPolicy, HistoryPolicy, ReliabilityPo
 from rrt import RRT, collision
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import JointState
+from rclpy.duration import Duration
 
 class RRTPlannerNode(Node):
     def __init__(self):
@@ -29,7 +30,7 @@ class RRTPlannerNode(Node):
         marker_qos = QoSProfile(history=HistoryPolicy.KEEP_LAST, depth=10, reliability=ReliabilityPolicy.RELIABLE, durability=DurabilityPolicy.TRANSIENT_LOCAL)
 
         # Parameters
-        self.step_size = 0.5 
+        self.step_size = 1.5
         self.control_timer = None 
         self.map_data = None
         self.current_path = [] 
@@ -113,7 +114,7 @@ class RRTPlannerNode(Node):
         )
 
         # Waypoint reached condition
-        if dist_xy < 0.3 and dist_z < 0.2:
+        if dist_xy < 0.2 and dist_z < 0.2:
             self.get_logger().info(f"REACHED WAYPOINT: [{target_x:.2f}, {target_y:.2f}, {target_z:.2f}]")
             self.current_path.pop(0)
             return
@@ -207,10 +208,10 @@ class RRTPlannerNode(Node):
 
     def run_simulation(self):
         # Rand Area avec Z: [min_x, max_x, min_y, max_y, min_z, max_z]
-        rand_area = [0.1, 14.8, 0.1, 9.9, 0.0, 3.5]
-        # 2D Version: start = [0.5, 5.0] | goal = [2.5, 5.0]
+        rand_area = [0.1, 14.8, 0.1, 9.9, 0.0, 3.0]
+        # 2D Version: start = [0.5, 5.0] | goal = [9.5, 5.0]
         start = [0.5, 5.0, 0.0]  # Start at ground level
-        goal = [2.5, 5.0, 1.0]  # Goal in the air to test 3D
+        goal = [13.5, 6.0, 1.0]  # Goal in the air to test 3D
 
         self.latest_goal = goal
         self.get_logger().info(f"Planning 3D from {start} to {goal}...")
@@ -266,6 +267,7 @@ class RRTPlannerNode(Node):
         marker.pose.position.z = float(goal[2]) # 3D Version
         marker.scale.x = marker.scale.y = marker.scale.z = 0.3
         marker.color.r, marker.color.g, marker.color.b, marker.color.a = (1.0, 0.0, 0.0, 1.0) 
+        marker.lifetime = Duration(seconds=2).to_msg()
         self.marker_pub.publish(marker)
     
     def stop_robot(self):

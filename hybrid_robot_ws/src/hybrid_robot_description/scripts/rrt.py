@@ -29,13 +29,13 @@ def collision(x1, y1, z1, x2, y2, z2, map_data): # 3D Version
     Checks for collisions between two points in 3D.
     Si Z > hauteur_obstacle (1.5m), pas de collision.
     """
-    # On définit une hauteur d'obstacle arbitraire (ex: 1.5m)
-    obstacle_height_limit = 3.0
+    # Height of the obstacles
+    obstacle_height_limit = 2.2 #2m obstacles + size of the robot approximately
     
     # 2D Version: dist = np.sqrt((x1 - x2)**2 + (y1 - y2)**2)
     dist = np.sqrt((x1 - x2)**2 + (y1 - y2)**2 + (z1 - z2)**2) # 3D distance
     theta = np.arctan2(y2 - y1, x2 - x1)
-    # Pour le calcul d'angle vertical (pitch)
+    # pitch
     phi = np.arctan2(z2 - z1, np.sqrt((x2 - x1)**2 + (y2 - y1)**2))
     
     res = map_data.info.resolution
@@ -52,9 +52,9 @@ def collision(x1, y1, z1, x2, y2, z2, map_data): # 3D Version
         curr_y = y1 + i * (res / 2.0) * np.sin(theta) * np.cos(phi)
         curr_z = z1 + i * (res / 2.0) * np.sin(phi)
         
-        # If we are higher than 3m, there are no obstacle
+        # If we are higher than 2m, there are no obstacle
         if curr_z > obstacle_height_limit:
-            continue # No collisio, if higher than 3m
+            continue
 
         gx = int((curr_x - origin_x) / res)
         gy = int((curr_y - origin_y) / res)
@@ -76,7 +76,6 @@ def check_collision(x1, y1, z1, x2, y2, z2, map_data, end_goal, step_size): # 3D
     # 2D Version: dist, theta = dist_and_angle(x2, y2, x1, y1)
     dist, theta, phi = dist_and_angle_3d(x2, y2, z2, x1, y1, z1) # 3D Version
     
-    # Extension du nœud vers le point aléatoire en 3 dimensions
     x = x2 + step_size * np.cos(theta) * np.cos(phi)
     y = y2 + step_size * np.sin(theta) * np.cos(phi)
     z = z2 + step_size * np.sin(phi)
@@ -89,7 +88,6 @@ def check_collision(x1, y1, z1, x2, y2, z2, map_data, end_goal, step_size): # 3D
     grid_x = int((x - origin_x) / res)
     grid_y = int((y - origin_y) / res)
 
-    # Vérification hors limites (Z min/max 0m à 2m)
     if grid_x < 0 or grid_x >= width or grid_y < 0 or grid_y >= map_data.info.height or z < 0 or z > 2.0:
         return (x, y, z, False, False)
 
@@ -122,7 +120,7 @@ class RRT:
         self.node_list[0].parent_z = [start[2]]
 
     def planning(self):
-        for i in range(10000): 
+        for i in range(30000): 
             # 2D: nx = random.uniform(self.rand_area[0], self.rand_area[1])
             nx = random.uniform(self.rand_area[0], self.rand_area[1])
             ny = random.uniform(self.rand_area[2], self.rand_area[3])
