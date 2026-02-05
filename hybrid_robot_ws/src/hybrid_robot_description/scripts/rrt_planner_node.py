@@ -22,6 +22,9 @@ class RRTPlannerNode(Node):
         
         self.robot_started = False
         self.planning_timer = None 
+        self.start_time = None # Criteria for time of simulation
+        self.total_air_points = 0 # Criteria for air points
+        self.mission_completed = False 
         self.get_logger().info("System ready. Waiting for map, then use '/start_robot' to move.")
         
         # QoS Settings
@@ -65,6 +68,11 @@ class RRTPlannerNode(Node):
 
     def start_callback(self, msg):
         self.get_logger().info("Starting signal received, the robot will start moving")
+
+        if self.start_time is None:
+            self.start_time = self.get_clock().now()
+            self.get_logger().info("Movement timer started!")
+
         self.robot_started = True
 
     def timer_callback(self):
@@ -72,6 +80,13 @@ class RRTPlannerNode(Node):
             self.publish_path(self.latest_path)
         if self.latest_goal is not None:
             self.publish_goal_marker(self.latest_goal)
+
+        if not self.current_path and not self.mission_completed and self.start_time is not None:
+            end_time = self.get_clock().now()
+            duration = (end_time - self.start_time).nanoseconds / 1e9 # Need to convert to seconds
+            self.mission_completed = True
+            self.get_logger().info(f"Movement Time: {duration:.2f} seconds")
+            self.get_logger().info(f"Air Waypoints: {self.total_air_points}")
 
     def joint_callback(self, msg):
         """ English comment: Updates robot altitude by reading the prismatic joint state """
@@ -94,18 +109,18 @@ class RRTPlannerNode(Node):
         robot_map_y = self.robot_pose['y']
         robot_map_z = self.robot_pose['z']
 
-        # Distance XY
+        # Distance calculation
         dx = target_x - robot_map_x
         dy = target_y - robot_map_y
         dist_xy = math.sqrt(dx**2 + dy**2)
         dist_z = abs(target_z - robot_map_z)
     
-        # Angle
+        # Angle calculation 
         angle_to_target = math.atan2(dy, dx)
         angle_diff = math.atan2(math.sin(angle_to_target - self.robot_pose['yaw']), 
                         math.cos(angle_to_target - self.robot_pose['yaw']))
 
-        # Debug 3D
+        # Debug point by point
         self.get_logger().info(
             f"TARGET: [{target_x:.2f}, {target_y:.2f}, {target_z:.2f}] | "
             f"POSE: [{robot_map_x:.2f}, {robot_map_y:.2f}, {robot_map_z:.2f}] | "
@@ -199,7 +214,7 @@ class RRTPlannerNode(Node):
                 p2 = Point()
                 p2.x = float(node.parent_x[-2])
                 p2.y = float(node.parent_y[-2])
-                p2.z = float(node.parent_z[-2]) # 3D Parent
+                p2.z = float(node.parent_z[-2])
             
                 marker.points.append(p1)
                 marker.points.append(p2)
@@ -207,11 +222,10 @@ class RRTPlannerNode(Node):
         self.tree_pub.publish(marker)
 
     def run_simulation(self):
-        # Rand Area avec Z: [min_x, max_x, min_y, max_y, min_z, max_z]
         rand_area = [0.1, 14.8, 0.1, 9.9, 0.0, 3.0]
-        # 2D Version: start = [0.5, 5.0] | goal = [9.5, 5.0]
-        start = [0.5, 5.0, 0.0]  # Start at ground level
-        goal = [13.5, 6.0, 1.0]  # Goal in the air to test 3D
+
+        start = [0.5, 5.0, 0.0]  
+        goal = [13.5, 6.0, 1.0]  # CHANGE GOAL HERE
 
         self.latest_goal = goal
         self.get_logger().info(f"Planning 3D from {start} to {goal}...")
@@ -232,6 +246,8 @@ class RRTPlannerNode(Node):
             self.get_logger().info(f"Path found in {end_time - start_time:.4f}s")
             self.latest_path = path  
             self.current_path = path 
+            self.total_air_points = sum(1 for p in path if p[2] > 0.1)
+            self.get_logger().info(f"There are {self.total_air_points} points in the air out of {len(path)} total points.")
             return path, planner 
         else:
             self.get_logger().warn("RRT failed to find a valid path.")
@@ -248,7 +264,7 @@ class RRTPlannerNode(Node):
             pose.pose.position.x = float(point[0])
             pose.pose.position.y = float(point[1])
             # 2D Version: pose.pose.position.z = 0.1
-            pose.pose.position.z = float(point[2]) # 3D Version
+            pose.pose.position.z = float(point[2])
             path_msg.poses.append(pose)
             
         self.path_pub.publish(path_msg)
@@ -264,7 +280,7 @@ class RRTPlannerNode(Node):
         marker.pose.position.x = float(goal[0])
         marker.pose.position.y = float(goal[1])
         # 2D Version: marker.pose.position.z = 0.5
-        marker.pose.position.z = float(goal[2]) # 3D Version
+        marker.pose.position.z = float(goal[2]) 
         marker.scale.x = marker.scale.y = marker.scale.z = 0.3
         marker.color.r, marker.color.g, marker.color.b, marker.color.a = (1.0, 0.0, 0.0, 1.0) 
         marker.lifetime = Duration(seconds=2).to_msg()
