@@ -15,10 +15,10 @@ class Nodes:
     def __init__(self, x, y, z): # 3D Version
         self.x = x
         self.y = y
-        self.z = z # Ajout de la composante Z
+        self.z = z 
         self.parent_x = []
         self.parent_y = []
-        self.parent_z = [] # Ajout du parent Z
+        self.parent_z = [] 
 
 # check collision
 import numpy as np
@@ -107,12 +107,14 @@ def dist_and_angle_3d(x1, y1, z1, x2, y2, z2): # 3D Version
 
 
 class RRT:
-    def __init__(self, start, goal, rand_area, step_size, map_data):
-        self.start = start # [x, y, z]
-        self.goal = goal   # [x, y, z]
-        self.rand_area = rand_area # [min_x, max_x, min_y, max_y, min_z, max,z]
+    def __init__(self, start, goal, rand_area, step_size, map_data,z_penalty):
+        self.start = start 
+        self.goal = goal   
+        self.rand_area = rand_area  
         self.step_size = step_size
         self.map_data = map_data
+        self.z_penalty = z_penalty
+        
         # Initialize node list with the start position (3D)
         self.node_list = [Nodes(start[0], start[1], start[2])]
         self.node_list[0].parent_x = [start[0]]
@@ -122,12 +124,31 @@ class RRT:
     def planning(self):
         for i in range(30000): 
             # 2D: nx = random.uniform(self.rand_area[0], self.rand_area[1])
-            nx = random.uniform(self.rand_area[0], self.rand_area[1])
-            ny = random.uniform(self.rand_area[2], self.rand_area[3])
-            nz = random.uniform(self.rand_area[4], self.rand_area[5])
+            # 70% of the time, force the random point to be on the ground (Z=0)
+            if random.random() < 0.7:
+                nx = random.uniform(self.rand_area[0], self.rand_area[1])
+                ny = random.uniform(self.rand_area[2], self.rand_area[3])
+                nz = 0.0
+            else:
+                # 30% of the time, explore the 3D
+                nx = random.uniform(self.rand_area[0], self.rand_area[1])
+                ny = random.uniform(self.rand_area[2], self.rand_area[3])
+                nz = random.uniform(self.rand_area[4], self.rand_area[5])
+
+            # Without penalty 3D
+            #nx = random.uniform(self.rand_area[0], self.rand_area[1])
+            #ny = random.uniform(self.rand_area[2], self.rand_area[3])
+            #nz = random.uniform(self.rand_area[4], self.rand_area[5])
 
             # 2D Find nearest node: dlist = [(node.x - nx)**2 + (node.y - ny)**2 for node in self.node_list]
-            dlist = [(node.x - nx)**2 + (node.y - ny)**2 + (node.z - nz)**2 for node in self.node_list]
+            dlist = []
+            for node in self.node_list:
+                dx = node.x - nx
+                dy = node.y - ny
+                dz = (node.z - nz) * self.z_penalty
+                dist = dx**2 + dy**2 + dz**2 
+                dlist.append(dist)
+
             nearest_ind = dlist.index(min(dlist))
             nearest_node = self.node_list[nearest_ind]
 

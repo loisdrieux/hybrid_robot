@@ -236,7 +236,8 @@ class RRTPlannerNode(Node):
             goal=goal,
             rand_area=rand_area,
             step_size=self.step_size,
-            map_data=self.map_data
+            map_data=self.map_data,
+            z_penalty=15.0  # CHANGE PENALTY HERE 
         )
         
         path = planner.planning() 
@@ -246,7 +247,7 @@ class RRTPlannerNode(Node):
             self.get_logger().info(f"Path found in {end_time - start_time:.4f}s")
             self.latest_path = path  
             self.current_path = path 
-            self.total_air_points = sum(1 for p in path if p[2] > 0.1)
+            self.total_air_points = sum(1 for p in path if p[2] > 0.10) #Condition that says we are not on the ground anymore
             self.get_logger().info(f"There are {self.total_air_points} points in the air out of {len(path)} total points.")
             return path, planner 
         else:
