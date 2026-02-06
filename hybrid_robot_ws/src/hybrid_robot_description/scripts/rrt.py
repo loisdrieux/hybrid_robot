@@ -124,6 +124,14 @@ class RRT:
     def planning(self):
         for i in range(30000): 
             # 2D: nx = random.uniform(self.rand_area[0], self.rand_area[1])
+            # ny = random.uniform(self.rand_area[2], self.rand_area[3])
+
+            # Without penalty 3D
+            #nx = random.uniform(self.rand_area[0], self.rand_area[1])
+            #ny = random.uniform(self.rand_area[2], self.rand_area[3])
+            #nz = random.uniform(self.rand_area[4], self.rand_area[5])
+
+            #Penalty 3D
             # 70% of the time, force the random point to be on the ground (Z=0)
             if random.random() < 0.7:
                 nx = random.uniform(self.rand_area[0], self.rand_area[1])
@@ -135,10 +143,7 @@ class RRT:
                 ny = random.uniform(self.rand_area[2], self.rand_area[3])
                 nz = random.uniform(self.rand_area[4], self.rand_area[5])
 
-            # Without penalty 3D
-            #nx = random.uniform(self.rand_area[0], self.rand_area[1])
-            #ny = random.uniform(self.rand_area[2], self.rand_area[3])
-            #nz = random.uniform(self.rand_area[4], self.rand_area[5])
+            
 
             # 2D Find nearest node: dlist = [(node.x - nx)**2 + (node.y - ny)**2 for node in self.node_list]
             dlist = []
