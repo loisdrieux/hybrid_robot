@@ -10,7 +10,6 @@ def generate_launch_description():
     pkg_desc = get_package_share_directory('hybrid_robot_description')
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
 
-    #Choice of the map
     declare_map_name_arg = DeclareLaunchArgument(
         'map_name',
         default_value='storage_map',
@@ -26,13 +25,11 @@ def generate_launch_description():
         pkg_desc, 'map', [map_name, '.yaml']
     ])
 
-    # Cargar el archivo XACRO del robot
     robot_description = {'robot_description': Command([
         PathJoinSubstitution([FindExecutable(name='xacro')]),
         ' ', PathJoinSubstitution([pkg_desc, 'urdf', 'hybrid_robot.xacro'])
     ])}
-    
-    # a) Lanzar Gazebo (Servidor y Cliente)
+
     gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(pkg_gazebo_ros, 'launch', 'gazebo.launch.py')
@@ -40,7 +37,6 @@ def generate_launch_description():
         launch_arguments={'world': world_path, 'gzclient': 'true', 'use_sim_time': use_sim_time}.items()
     )
 
-    # b) Robot State Publisher (TF estáticas del robot)
     node_robot_state_publisher = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
@@ -48,7 +44,6 @@ def generate_launch_description():
         parameters=[robot_description, {'use_sim_time': use_sim_time}],
     )
 
-    # c) Spawn del robot en Gazebo
     spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
                         arguments=['-topic', 'robot_description',
                                    '-entity', 'hybrid_robot',
@@ -57,7 +52,6 @@ def generate_launch_description():
                         output='screen')
 
 
-    # d) Carga del Joint State Broadcaster (Publica estados de los joints)
     load_joint_state_broadcaster = Node(
         package="controller_manager",
         executable="spawner",
@@ -72,7 +66,6 @@ def generate_launch_description():
         output="screen",
     )
 
-    #Launch del calculo del path
     rrt_planner_node = Node(
         package='hybrid_robot_description',
         executable='rrt_planner_node.py',
@@ -82,9 +75,6 @@ def generate_launch_description():
         parameters=[{'use_sim_time': True}]
     )
 
-    # --- 4. LANZAMIENTO Y CONFIGURACIÓN DEL MAPA ---
-
-    # f) Map Server
     node_map_server = Node(
         package='nav2_map_server',
         executable='map_server',
@@ -104,11 +94,9 @@ def generate_launch_description():
         parameters=[{
             'use_sim_time': True,
             'autostart': True,
-            'node_names': ['map_server'] # <--- DOIT CORRESPONDRE AU NOM CI-DESSUS
+            'node_names': ['map_server']
         }]
     )
-
-    # g) TF estáticas globales
     static_tf_world_map = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
@@ -126,9 +114,6 @@ def generate_launch_description():
         arguments=['0', '0', '0', '0', '0', '0', 'map', 'odom', '--ros-args', '-p', 'use_sim_time:=true']
     )
 
-
-    
-    # --- 5. LANZAMIENTO DE RVIZ ---
     
     rviz_config_file = os.path.join(pkg_desc, 'rviz', 'default.rviz') 
     rviz_node = Node(

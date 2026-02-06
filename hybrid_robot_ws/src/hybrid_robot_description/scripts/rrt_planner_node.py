@@ -33,7 +33,7 @@ class RRTPlannerNode(Node):
         marker_qos = QoSProfile(history=HistoryPolicy.KEEP_LAST, depth=10, reliability=ReliabilityPolicy.RELIABLE, durability=DurabilityPolicy.TRANSIENT_LOCAL)
 
         # Parameters
-        self.step_size = 1.5
+        self.step_size = 1.5  # CHANGE STEP SIZE HERE
         self.control_timer = None 
         self.map_data = None
         self.current_path = [] 
