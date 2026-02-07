@@ -222,10 +222,10 @@ class RRTPlannerNode(Node):
         self.tree_pub.publish(marker)
 
     def run_simulation(self):
-        rand_area = [0.1, 14.8, 0.1, 9.9, 0.0, 3.0]
+        rand_area = [0.1, 14.8, 0.1, 9.9, 0.0, 4.0]
 
         start = [0.5, 5.0, 0.0]  
-        goal = [13.5, 6.0, 1.0]  # CHANGE GOAL HERE
+        goal = [11.0, 6.0, 2.0]  # CHANGE GOAL HERE
 
         self.latest_goal = goal
         self.get_logger().info(f"Planning 3D from {start} to {goal}...")
