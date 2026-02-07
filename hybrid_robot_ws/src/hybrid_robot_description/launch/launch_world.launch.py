@@ -49,7 +49,8 @@ def generate_launch_description():
                                    '-entity', 'hybrid_robot',
                                    '-x', '0.5', '-y', '5.0', '-z', '0.05', 
                                    '--ros-args', '--param', 'use_sim_time:=true'],
-                        output='screen')
+                        output='screen',
+    )
 
 
     load_joint_state_broadcaster = Node(
