@@ -27,7 +27,6 @@ import numpy as np
 def collision(x1, y1, z1, x2, y2, z2, map_data): # 3D Version
     """
     Checks for collisions between two points in 3D.
-    Si Z > hauteur_obstacle (1.5m), pas de collision.
     """
     # Height of the obstacles
     obstacle_height_limit = 2.2 #2m obstacles + size of the robot approximately

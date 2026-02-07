@@ -7,5 +7,3 @@ log/
 *.vscode/
 
 # Fichiers de cache spécifiques au projet
-# Si vous aviez généré l'OctoMap, vous devriez aussi exclure :
-# storage_level_0.bt
