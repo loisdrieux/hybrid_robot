@@ -9,12 +9,14 @@ from launch_ros.actions import Node
 def generate_launch_description():
     pkg_desc = get_package_share_directory('hybrid_robot_description')
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
-
+  
+    #Map
     declare_map_name_arg = DeclareLaunchArgument(
         'map_name',
         default_value='storage_map',
         description='Base name of the map and world files'
     )
+
     map_name = LaunchConfiguration('map_name')
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     world_path = PathJoinSubstitution([
@@ -25,11 +27,14 @@ def generate_launch_description():
         pkg_desc, 'map', [map_name, '.yaml']
     ])
 
-    robot_description = {'robot_description': Command([
-        PathJoinSubstitution([FindExecutable(name='xacro')]),
-        ' ', PathJoinSubstitution([pkg_desc, 'urdf', 'hybrid_robot.xacro'])
-    ])}
+    # Topic Robot Description
+    robot_description_content = Command(['xacro ', 
+        PathJoinSubstitution([pkg_desc, 'urdf', 'hybrid_robot.xacro'])
+    ])
+    robot_description = {'robot_description': robot_description_content}
 
+
+    #Launch Gazebo
     gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(pkg_gazebo_ros, 'launch', 'gazebo.launch.py')
@@ -44,6 +49,7 @@ def generate_launch_description():
         parameters=[robot_description, {'use_sim_time': use_sim_time}],
     )
 
+    #Spawn robot en Gazebo
     spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
                         arguments=['-topic', 'robot_description',
                                    '-entity', 'hybrid_robot',
@@ -60,6 +66,7 @@ def generate_launch_description():
         output="screen",
     )
 
+    # Controller for thrust
     load_lift_controller = Node(
         package="controller_manager",
         executable="spawner",
@@ -67,6 +74,7 @@ def generate_launch_description():
         output="screen",
     )
 
+    #RRT
     rrt_planner_node = Node(
         package='hybrid_robot_description',
         executable='rrt_planner_node.py',
@@ -76,6 +84,7 @@ def generate_launch_description():
         parameters=[{'use_sim_time': True}]
     )
 
+    # Being able to read the pgm and yaml file
     node_map_server = Node(
         package='nav2_map_server',
         executable='map_server',
@@ -98,6 +107,8 @@ def generate_launch_description():
             'node_names': ['map_server']
         }]
     )
+
+    #TF
     static_tf_world_map = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
@@ -115,7 +126,7 @@ def generate_launch_description():
         arguments=['0', '0', '0', '0', '0', '0', 'map', 'odom', '--ros-args', '-p', 'use_sim_time:=true']
     )
 
-    
+    #Launch RVIZ
     rviz_config_file = os.path.join(pkg_desc, 'rviz', 'default.rviz') 
     rviz_node = Node(
         package='rviz2',
@@ -141,6 +152,7 @@ def generate_launch_description():
         ]
     )
 
+    #Test nav 3D
     test_node_navig_3D = Node(
         package='hybrid_robot_description',
         executable='test_sequence_node_3D.py',
