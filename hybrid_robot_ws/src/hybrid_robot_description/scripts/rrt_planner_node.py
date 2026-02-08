@@ -225,7 +225,7 @@ class RRTPlannerNode(Node):
         rand_area = [0.1, 14.8, 0.1, 9.9, 0.0, 4.0]
 
         start = [0.5, 5.0, 0.0]  
-        goal = [11.0, 6.0, 2.0]  # CHANGE GOAL HERE
+        goal = [9.0, 9.0, 1.5]  # CHANGE GOAL HERE
 
         self.latest_goal = goal
         self.get_logger().info(f"Planning 3D from {start} to {goal}...")

@@ -25,10 +25,12 @@ def generate_launch_description():
         pkg_desc, 'map', [map_name, '.yaml']
     ])
 
-    robot_description = {'robot_description': Command([
-        PathJoinSubstitution([FindExecutable(name='xacro')]),
-        ' ', PathJoinSubstitution([pkg_desc, 'urdf', 'hybrid_robot.xacro'])
-    ])}
+    # Por esto (más robusto):
+    robot_description_content = Command([
+        'xacro ', # El sistema suele encontrar xacro solo si está en el PATH
+        PathJoinSubstitution([pkg_desc, 'urdf', 'hybrid_robot.xacro'])
+    ])
+    robot_description = {'robot_description': robot_description_content}
 
     gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
