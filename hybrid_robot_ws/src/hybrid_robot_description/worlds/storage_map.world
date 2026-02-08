@@ -176,7 +176,7 @@
     </model>
 
     <model name='storage_shelf_1'>
-      <pose>4.0 4.0 0.5 0 0 0</pose> <static>true</static>
+      <pose>4.0 4.0 1.0 0 0 0</pose> <static>true</static>
       <link name='link'>
         <collision name='collision'>
           <geometry>
@@ -198,7 +198,7 @@
     </model>
 
     <model name='storage_shelf_2'>
-      <pose>7.0 7.0 0.5 0 0 0</pose> <static>true</static>
+      <pose>7.0 7.0 1.0 0 0 0</pose> <static>true</static>
       <link name='link'>
         <collision name='collision'>
           <geometry>
@@ -222,7 +222,7 @@
     <model name="final_blockade_wall">
       <static>true</static>
       <link name="link">
-        <pose>10 5 1.5 0 0 0</pose>
+        <pose>10 5 1.0 0 0 0</pose>
         <collision name="collision">
           <geometry>
             <box>

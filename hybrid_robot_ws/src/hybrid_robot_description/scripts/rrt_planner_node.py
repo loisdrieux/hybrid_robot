@@ -19,11 +19,10 @@ from rclpy.duration import Duration
 class RRTPlannerNode(Node):
     def __init__(self):
         super().__init__('rrt_planner_node')
-        
         self.robot_started = False
         self.planning_timer = None 
-        self.start_time = None # Criteria for time of simulation
-        self.total_air_points = 0 # Criteria for air points
+        self.start_time = None 
+        self.total_air_points = 0 
         self.mission_completed = False 
         self.get_logger().info("System ready. Waiting for map, then use '/start_robot' to move.")
         
@@ -40,7 +39,7 @@ class RRTPlannerNode(Node):
         self.latest_path = None 
         self.latest_goal = None
         # 2D Version: self.robot_pose = {'x': 0.0, 'y': 0.0, 'yaw': 0.0}
-        self.robot_pose = {'x': 0.0, 'y': 0.0, 'z': 0.0, 'yaw': 0.0} # 3D Version
+        self.robot_pose = {'x': 0.0, 'y': 0.0, 'z': 0.0, 'yaw': 0.0}
 
         # Movement Constraints
         self.target_reached_dist = 0.25
@@ -66,6 +65,7 @@ class RRTPlannerNode(Node):
         
         self.get_logger().info("RRT Node started. Persistent publishing enabled.")
 
+    # Wait for the signal on another terminal
     def start_callback(self, msg):
         self.get_logger().info("Starting signal received, the robot will start moving")
 
@@ -88,8 +88,8 @@ class RRTPlannerNode(Node):
             self.get_logger().info(f"Movement Time: {duration:.2f} seconds")
             self.get_logger().info(f"Air Waypoints: {self.total_air_points}")
 
+    #To update the robot altitude by reading the prismatic joint state
     def joint_callback(self, msg):
-        """ English comment: Updates robot altitude by reading the prismatic joint state """
         try:
             if 'lift_joint' in msg.name:
                 idx = msg.name.index('lift_joint')
@@ -150,6 +150,7 @@ class RRTPlannerNode(Node):
 
         self.cmd_vel_pub.publish(msg)
 
+    # To display the map on RVIZ
     def map_callback(self, msg):
         if self.map_data is None and msg.data:
             self.get_logger().info("Map received! Running RRT planning...")
@@ -157,6 +158,7 @@ class RRTPlannerNode(Node):
             self.destroy_subscription(self.map_sub)
             self.planning_timer = self.create_timer(5.0, self.run_planning_timer_callback)
 
+    # To have the odometry at any time
     def odom_callback(self, msg):
         self.robot_pose['x'] = msg.pose.pose.position.x
         self.robot_pose['y'] = msg.pose.pose.position.y
@@ -194,6 +196,7 @@ class RRTPlannerNode(Node):
         else:
             self.get_logger().error("RRT failed to find a path.")
     
+    # To display the RRT tree on RVIZ
     def publish_tree(self, nodes):
         marker = Marker()
         marker.header.frame_id = "map"
@@ -222,15 +225,16 @@ class RRTPlannerNode(Node):
         self.tree_pub.publish(marker)
 
     def run_simulation(self):
-        rand_area = [0.1, 14.8, 0.1, 9.9, 0.0, 4.0]
+        rand_area = [0.1, 14.8, 0.1, 9.9, 0.0, 3.0]
 
         start = [0.5, 5.0, 0.0]  
-        goal = [11.0, 6.0, 2.0]  # CHANGE GOAL HERE
+        goal = [9.0, 8.0, 1.0]  # CHANGE GOAL HERE
 
         self.latest_goal = goal
         self.get_logger().info(f"Planning 3D from {start} to {goal}...")
         start_time = time.time()
 
+        # Call RRT class
         planner = RRT(
             start=start,
             goal=goal,
@@ -254,6 +258,8 @@ class RRTPlannerNode(Node):
             self.get_logger().warn("RRT failed to find a valid path.")
             return None, planner
 
+
+    # To display the RRT path on RVIZ
     def publish_path(self, rrt_path):
         path_msg = Path()
         path_msg.header.frame_id = "map"
@@ -270,6 +276,7 @@ class RRTPlannerNode(Node):
             
         self.path_pub.publish(path_msg)
 
+    # To display the goal marker on RVIZ
     def publish_goal_marker(self, goal):
         marker = Marker()
         marker.header.frame_id = "map"
